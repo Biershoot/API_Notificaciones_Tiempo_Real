@@ -20,16 +20,22 @@ public class Notification {
     @Schema(description = "ID único de la notificación", example = "1")
     private Long id;
 
+    @Column(nullable = false)
+    @Schema(description = "Nombre de usuario destinatario", example = "user1", required = true)
+    private String username;
+
     @Schema(description = "Contenido del mensaje de la notificación", example = "Tu pedido ha sido procesado exitosamente")
     private String message;
-
-    @Builder.Default
-    @Schema(description = "Estado de lectura de la notificación", example = "false")
-    private boolean read = false;
 
     @Schema(description = "Fecha y hora de creación de la notificación", example = "2023-12-19T10:30:00")
     private LocalDateTime timestamp;
 
+    @Builder.Default
+    @Column(nullable = false)
+    @Schema(description = "Estado de lectura de la notificación", example = "false")
+    private boolean read = false;
+
+    // Mantenemos la relación con User para compatibilidad con el sistema actual
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @Schema(description = "Usuario destinatario de la notificación")

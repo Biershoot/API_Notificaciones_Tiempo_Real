@@ -16,7 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/notifications")
 @RequiredArgsConstructor
-@Tag(name = "Notificaciones", description = "API para gestión de notificaciones en tiempo real con WebSockets")
+@Tag(name = "Notificaciones", description = "API para gestión avanzada de notificaciones con persistencia y estado de lectura")
 public class NotificationController {
 
     private final NotificationService notificationService;
@@ -40,27 +40,27 @@ public class NotificationController {
         return ResponseEntity.ok(notificationService.sendNotification(username, message));
     }
 
-    // 📋 Listar todas las notificaciones de un usuario
+    // 📋 Obtener todas las notificaciones de un usuario (ordenadas por timestamp)
     @GetMapping("/{username}")
     @Operation(
-        summary = "Obtener notificaciones del usuario",
-        description = "Obtiene todas las notificaciones de un usuario específico"
+        summary = "Obtener todas las notificaciones del usuario",
+        description = "Obtiene todas las notificaciones de un usuario específico ordenadas por timestamp descendente"
     )
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Lista de notificaciones obtenida exitosamente"),
         @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
     })
-    public ResponseEntity<List<Notification>> getNotifications(
+    public ResponseEntity<List<Notification>> getAllNotifications(
             @Parameter(description = "Nombre de usuario", required = true)
             @PathVariable String username) {
-        return ResponseEntity.ok(notificationService.getNotifications(username));
+        return ResponseEntity.ok(notificationService.getAllNotifications(username));
     }
 
-    // 📬 Listar solo las no leídas
+    // 📬 Obtener solo las notificaciones no leídas
     @GetMapping("/{username}/unread")
     @Operation(
         summary = "Obtener notificaciones no leídas",
-        description = "Obtiene únicamente las notificaciones no leídas de un usuario específico"
+        description = "Obtiene únicamente las notificaciones no leídas de un usuario específico ordenadas por timestamp descendente"
     )
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Lista de notificaciones no leídas obtenida exitosamente"),
@@ -72,10 +72,25 @@ public class NotificationController {
         return ResponseEntity.ok(notificationService.getUnreadNotifications(username));
     }
 
-    // ✅ Marcar una notificación como leída
+    // 📊 Contar notificaciones no leídas
+    @GetMapping("/{username}/unread/count")
+    @Operation(
+        summary = "Contar notificaciones no leídas",
+        description = "Obtiene el número total de notificaciones no leídas de un usuario específico"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Conteo obtenido exitosamente")
+    })
+    public ResponseEntity<Long> countUnreadNotifications(
+            @Parameter(description = "Nombre de usuario", required = true)
+            @PathVariable String username) {
+        return ResponseEntity.ok(notificationService.countUnreadNotifications(username));
+    }
+
+    // ✅ Marcar una notificación específica como leída
     @PutMapping("/{id}/read")
     @Operation(
-        summary = "Marcar notificación como leída",
+        summary = "Marcar notificación específica como leída",
         description = "Actualiza el estado de una notificación específica marcándola como leída"
     )
     @ApiResponses(value = {
@@ -86,5 +101,22 @@ public class NotificationController {
             @Parameter(description = "ID de la notificación", required = true)
             @PathVariable Long id) {
         return ResponseEntity.ok(notificationService.markAsRead(id));
+    }
+
+    // ✅ Marcar todas las notificaciones como leídas
+    @PostMapping("/{username}/mark-all-read")
+    @Operation(
+        summary = "Marcar todas las notificaciones como leídas",
+        description = "Marca todas las notificaciones de un usuario específico como leídas de una sola vez"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Todas las notificaciones marcadas como leídas exitosamente"),
+        @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+    })
+    public ResponseEntity<Void> markAllAsRead(
+            @Parameter(description = "Nombre de usuario", required = true)
+            @PathVariable String username) {
+        notificationService.markAllAsRead(username);
+        return ResponseEntity.ok().build();
     }
 }

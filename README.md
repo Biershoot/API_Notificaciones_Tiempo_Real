@@ -1,15 +1,160 @@
 # 🔔 API de Notificaciones en Tiempo Real
 
-API completa de notificaciones con WebSockets y Redis Pub/Sub para escalabilidad distribuida.
+API completa de notificaciones con WebSockets, Redis Pub/Sub y **persistencia avanzada** para gestión completa de estado de lectura.
 
-## 🚀 Características
+## 🚀 Características Avanzadas
 
 - ✅ **API REST** completa con Swagger UI
 - ✅ **WebSockets** para notificaciones en tiempo real
 - ✅ **Redis Pub/Sub** para arquitectura distribuida
+- ✅ **Persistencia avanzada** con estado de lectura
+- ✅ **Filtros inteligentes** (todas/no leídas)
+- ✅ **Contadores** de notificaciones
+- ✅ **Marcado masivo** como leídas
 - ✅ **Base de datos** MySQL + H2 embebida
 - ✅ **Documentación** automática con OpenAPI
-- ✅ **Cliente demo** HTML incluido
+- ✅ **Cliente demo avanzado** HTML incluido
+
+## 📡 Endpoints Avanzados de la API
+
+### 📩 Notificaciones
+- `POST /api/notifications/send` - Enviar notificación
+- `GET /api/notifications/{username}` - Ver **todas** las notificaciones (ordenadas)
+- `GET /api/notifications/{username}/unread` - Ver **solo no leídas** (ordenadas)
+- `GET /api/notifications/{username}/unread/count` - **Contar** no leídas
+- `PUT /api/notifications/{id}/read` - Marcar **una específica** como leída
+- `POST /api/notifications/{username}/mark-all-read` - Marcar **todas** como leídas
+
+### 👥 Usuarios
+- `POST /api/users` - Crear usuario
+- `GET /api/users` - Listar usuarios
+- `GET /api/users/{username}` - Buscar usuario
+- `DELETE /api/users/{id}` - Eliminar usuario
+
+## 🎯 Nuevas Funcionalidades del Cliente Web
+
+### 📊 Dashboard de Estadísticas
+- **Contador total** de notificaciones
+- **Contador de no leídas** con badge visual
+- **Auto-actualización** cada 10 segundos
+
+### 🔍 Filtros Inteligentes
+- **"Todas"** - Ver historial completo
+- **"Solo No Leídas"** - Focus en pendientes
+- **Ordenamiento** por timestamp descendente
+
+### ✅ Gestión Avanzada
+- **Marcar individual** como leída
+- **Marcar todas** como leídas de una vez
+- **Estados visuales** diferenciados (leída/no leída)
+- **Notificaciones toast** para nuevos mensajes
+
+## 🧪 Casos de Uso Avanzados
+
+### Escenario 1: Dashboard Empresarial
+```bash
+# Ver resumen de notificaciones
+curl "http://localhost:8080/api/notifications/admin/unread/count"
+# Respuesta: 5
+
+# Obtener solo las urgentes
+curl "http://localhost:8080/api/notifications/admin/unread"
+
+# Marcar todas como revisadas
+curl -X POST "http://localhost:8080/api/notifications/admin/mark-all-read"
+```
+
+### Escenario 2: App Móvil
+```bash
+# Badge de notificaciones
+GET /api/notifications/{user}/unread/count
+
+# Lista para mostrar
+GET /api/notifications/{user}/unread
+
+# Usuario lee una específica
+PUT /api/notifications/123/read
+```
+
+### Escenario 3: Sistema de Monitoreo
+```bash
+# Enviar alerta crítica
+curl -X POST "http://localhost:8080/api/notifications/send" \
+  -d "username=admin&message=🚨 Sistema crítico: CPU al 95%"
+
+# Todas las instancias reciben via Redis → WebSocket
+# Admin ve notificación instantáneamente con badge actualizado
+```
+
+## 🏗️ Arquitectura de Persistencia
+
+### Base de Datos
+```sql
+CREATE TABLE notifications (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(255) NOT NULL,
+    message TEXT,
+    timestamp DATETIME,
+    read BOOLEAN DEFAULT FALSE,
+    user_id BIGINT,
+    INDEX idx_username_timestamp (username, timestamp),
+    INDEX idx_username_read (username, read)
+);
+```
+
+### Consultas Optimizadas
+- **Por usuario y timestamp**: `ORDER BY timestamp DESC`
+- **Solo no leídas**: `WHERE read = false`
+- **Conteos eficientes**: Índices en `username` y `read`
+- **Updates masivos**: `UPDATE WHERE username = ?`
+
+## 📱 Cliente Web Avanzado
+
+### Nuevas Características
+1. **Panel de Estadísticas** - Contadores en tiempo real
+2. **Filtros Dinámicos** - Alternar entre vistas
+3. **Gestión Individual** - Botón "marcar como leída" por notificación
+4. **Gestión Masiva** - "Marcar todas como leídas"
+5. **Estados Visuales** - Colores diferenciados leída/no leída
+6. **Toast Notifications** - Popup para nuevas notificaciones
+7. **Auto-refresh** - Sincronización automática cada 10s
+
+### Uso del Cliente
+1. **Conectar** como usuario (ej: user1)
+2. **Ver estadísticas** - Total y no leídas en tiempo real
+3. **Filtrar** - Alternar "Todas" / "Solo No Leídas"
+4. **Gestionar** - Marcar individual o masivamente
+5. **Recibir** - Notificaciones instantáneas con toast
+
+## 🎯 Testing de Funcionalidades Avanzadas
+
+### Test de Persistencia
+```bash
+# 1. Enviar varias notificaciones
+curl -X POST "localhost:8080/api/notifications/send" -d "username=user1&message=Mensaje 1"
+curl -X POST "localhost:8080/api/notifications/send" -d "username=user1&message=Mensaje 2"
+
+# 2. Verificar conteo
+curl "localhost:8080/api/notifications/user1/unread/count"  # Respuesta: 2
+
+# 3. Marcar una como leída
+curl -X PUT "localhost:8080/api/notifications/1/read"
+
+# 4. Verificar nuevo conteo
+curl "localhost:8080/api/notifications/user1/unread/count"  # Respuesta: 1
+
+# 5. Ver solo no leídas
+curl "localhost:8080/api/notifications/user1/unread"      # Solo mensaje 2
+
+# 6. Ver todas (incluye leídas)
+curl "localhost:8080/api/notifications/user1"             # Ambos mensajes
+
+# 7. Marcar todas como leídas
+curl -X POST "localhost:8080/api/notifications/user1/mark-all-read"
+
+# 8. Verificar resultado
+curl "localhost:8080/api/notifications/user1/unread/count"  # Respuesta: 0
+```
 
 ## 📋 Requisitos
 
@@ -75,114 +220,6 @@ Una vez iniciada la aplicación:
 | admin    | password | ADMIN |
 | user1    | password | USER  |
 | user2    | password | USER  |
-
-## 📡 Endpoints de la API
-
-### Notificaciones
-- `POST /api/notifications/send` - Enviar notificación
-- `GET /api/notifications/{username}` - Ver notificaciones
-- `GET /api/notifications/{username}/unread` - Ver no leídas
-- `PUT /api/notifications/{id}/read` - Marcar como leída
-
-### Usuarios
-- `POST /api/users` - Crear usuario
-- `GET /api/users` - Listar usuarios
-- `GET /api/users/{username}` - Buscar usuario
-- `DELETE /api/users/{id}` - Eliminar usuario
-
-## 🌐 WebSockets
-
-### Conexión
-```javascript
-// Conectar a WebSocket
-const socket = new SockJS('http://localhost:8080/ws');
-const stompClient = Stomp.over(socket);
-
-// Suscribirse a notificaciones
-stompClient.subscribe('/topic/notifications/username', function(message) {
-    const notification = JSON.parse(message.body);
-    console.log('Nueva notificación:', notification);
-});
-
-// Enviar notificación
-stompClient.send("/app/send", {}, JSON.stringify({
-    username: 'destinatario',
-    message: 'Hola mundo!'
-}));
-```
-
-## 🏗️ Arquitectura Distribuida
-
-El sistema usa Redis Pub/Sub para permitir múltiples instancias:
-
-1. **Instancia A** recibe notificación via REST
-2. **Redis** distribuye el mensaje a todas las instancias
-3. **Todas las instancias** envían via WebSocket a sus clientes conectados
-
-```
-[Cliente] → [Instancia A] → [Redis] → [Instancia A, B, C] → [WebSockets] → [Clientes]
-```
-
-## 🧪 Pruebas
-
-### Prueba básica con curl
-```bash
-# Enviar notificación
-curl -X POST "http://localhost:8080/api/notifications/send" \
-  -d "username=user1&message=Prueba de notificación"
-
-# Ver notificaciones
-curl "http://localhost:8080/api/notifications/user1"
-```
-
-### Prueba de escalabilidad
-1. Ejecuta múltiples instancias en puertos diferentes
-2. Conecta clientes WebSocket a diferentes instancias  
-3. Envía notificaciones desde cualquier instancia
-4. Verifica que todos los clientes reciben las notificaciones
-
-## 📝 Configuración
-
-### application.properties (Producción)
-```properties
-# Base de datos
-spring.datasource.url=jdbc:mysql://localhost:3306/notifications_db
-spring.datasource.username=root
-spring.datasource.password=tu_password
-
-# Redis
-spring.data.redis.host=localhost
-spring.data.redis.port=6379
-```
-
-### application-h2.properties (Desarrollo)
-```properties
-# Base de datos embebida
-spring.datasource.url=jdbc:h2:mem:notificationsdb
-spring.datasource.username=sa
-
-# Redis
-spring.data.redis.host=localhost
-spring.data.redis.port=6379
-```
-
-## 🐛 Troubleshooting
-
-### Error de conexión a Redis
-```bash
-# Verificar si Redis está ejecutándose
-redis-cli ping
-# Debe responder: PONG
-
-# Si no está instalado, usar Docker:
-docker run -d -p 6379:6379 redis:latest
-```
-
-### Error de conexión a MySQL
-```bash
-# Usar el perfil H2 para desarrollo:
-./mvnw spring-boot:run -Dspring-boot.run.profiles=h2
-```
 
 ## 📚 Tecnologías
 
