@@ -1,0 +1,55 @@
+version: "3.9"
+services:
+  app:
+    build: .
+    container_name: notifications-api
+    ports:
+      - "8080:8080"
+    depends_on:
+      - redis
+      - mysql
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/notifications_db
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_PROFILES_ACTIVE: mysql
+    networks:
+      - notifications-network
+    restart: unless-stopped
+
+  redis:
+    image: redis:7.2
+    container_name: notifications-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - notifications-network
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+
+  mysql:
+    image: mysql:8.0
+    container_name: notifications-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: notifications_db
+      MYSQL_USER: notifications_user
+      MYSQL_PASSWORD: notifications_pass
+    ports:
+      - "3306:3306"
+    networks:
+      - notifications-network
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+networks:
+  notifications-network:
+    driver: bridge
+
+volumes:
+  redis-data:
+  mysql-data:

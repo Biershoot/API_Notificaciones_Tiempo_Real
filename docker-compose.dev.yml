@@ -1,0 +1,16 @@
+version: "3.9"
+services:
+  app:
+    build: .
+    container_name: notifications-api-dev
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: no-redis
+    networks:
+      - notifications-network
+    restart: unless-stopped
+
+networks:
+  notifications-network:
+    driver: bridge

@@ -1,6 +1,6 @@
 # 🔔 API de Notificaciones en Tiempo Real
 
-API completa de notificaciones con WebSockets, Redis Pub/Sub, **persistencia avanzada** y **métricas con Spring Boot Actuator** para monitoreo en tiempo real.
+API completa de notificaciones con WebSockets, Redis Pub/Sub, **persistencia avanzada**, **métricas con Spring Boot Actuator** y **contenerización Docker** para monitoreo en tiempo real.
 
 ## 🚀 Características Avanzadas
 
@@ -11,6 +11,9 @@ API completa de notificaciones con WebSockets, Redis Pub/Sub, **persistencia ava
 - ✅ **Spring Boot Actuator** con métricas personalizadas
 - ✅ **Monitoreo en tiempo real** con contadores y gauges
 - ✅ **Métricas para Prometheus** listas para producción
+- ✅ **Contenerización Docker** completa
+- ✅ **Docker Compose** para stack completo
+- ✅ **Configuración flexible** para múltiples entornos
 - ✅ **Filtros inteligentes** (todas/no leídas)
 - ✅ **Contadores** de notificaciones
 - ✅ **Marcado masivo** como leídas
@@ -18,190 +21,100 @@ API completa de notificaciones con WebSockets, Redis Pub/Sub, **persistencia ava
 - ✅ **Documentación** automática con OpenAPI
 - ✅ **Cliente demo avanzado** HTML incluido
 
-## 📊 Nuevos Endpoints de Actuator
+## 🐳 Despliegue con Docker
 
-### 🔧 Endpoints Estándar de Actuator
-- `GET /actuator/health` - Estado de salud de la aplicación
-- `GET /actuator/metrics` - Métricas de JVM, CPU, memoria
-- `GET /actuator/prometheus` - Métricas en formato Prometheus
-- `GET /actuator/info` - Información de la aplicación
-- `GET /actuator/env` - Variables de entorno
-- `GET /actuator/loggers` - Configuración de logging
-
-### 📈 Endpoints Personalizados de Métricas
-- `GET /api/metrics/notifications` - **Métricas completas** del sistema
-- `GET /api/metrics/notifications/summary` - **Resumen ejecutivo** de métricas
-- `GET /actuator/notifications-metrics` - Endpoint Actuator personalizado
-
-## 🎯 Métricas Personalizadas Implementadas
-
-### 📊 Contadores (Counters)
-- **`notifications.sent`** - Total de notificaciones enviadas
-- **`notifications.read`** - Total de notificaciones leídas
-- **`notifications.unread.created`** - Total de notificaciones no leídas creadas
-- **`notifications.mark_all_read`** - Operaciones de marcar todas como leídas
-
-### 📈 Medidores (Gauges)
-- **`notifications.active.total`** - Notificaciones activas en tiempo real
-- **`notifications.unread.total`** - Notificaciones no leídas en tiempo real
-
-## 🧪 Casos de Uso de Monitoreo
-
-### Escenario 1: Dashboard de Operaciones
+### 🛠️ Construcción rápida
 ```bash
-# Estado general del sistema
-curl "http://localhost:8080/actuator/health"
+# Windows
+.\build-docker.bat
 
-# Métricas de rendimiento
-curl "http://localhost:8080/api/metrics/notifications/summary"
+# Linux/Mac
+./build-docker.sh
 ```
 
-**Respuesta ejemplo:**
-```json
-{
-  "performance": {
-    "total_notifications_sent": 1250,
-    "total_notifications_read": 980,
-    "read_rate_percentage": 78
-  },
-  "current_state": {
-    "active_notifications": 1250,
-    "unread_notifications": 270,
-    "read_notifications": 980
-  },
-  "health_indicators": {
-    "system_active": true,
-    "notifications_flowing": true,
-    "users_engaging": true
-  }
-}
-```
+### 📦 Opciones de despliegue
 
-### Escenario 2: Monitoreo Prometheus
+#### Desarrollo (solo H2, sin dependencias externas):
 ```bash
-# Métricas listas para Prometheus
-curl "http://localhost:8080/actuator/prometheus" | grep notifications
-
-# Ejemplo de salida:
-# notifications_sent_total{type="notification"} 1250.0
-# notifications_read_total{type="notification"} 980.0
-# notifications_active_total 1250.0
-# notifications_unread_total 270.0
+docker-compose -f docker-compose.dev.yml up
 ```
 
-### Escenario 3: Monitoreo Detallado
+#### Producción completa (MySQL + Redis + App):
 ```bash
-# Métricas completas con detalles de BD
-curl "http://localhost:8080/api/metrics/notifications"
+docker-compose up
 ```
 
-**Respuesta ejemplo:**
-```json
-{
-  "total_sent": 1250.0,
-  "total_read": 980.0,
-  "active_notifications": 1250.0,
-  "unread_notifications": 270.0,
-  "database_total": 1250,
-  "database_unread": 270,
-  "database_read": 980,
-  "read_percentage": 78,
-  "unread_percentage": 22,
-  "timestamp": 1703024400000,
-  "status": "active"
-}
+#### Solo la aplicación:
+```bash
+docker run -p 8080:8080 notifications-api:latest
 ```
 
-## 🔧 Configuración de Actuator
+### 🎯 URLs disponibles después del despliegue:
+- **API REST**: http://localhost:8080/api/
+- **Swagger UI**: http://localhost:8080/swagger-ui.html
+- **Cliente WebSocket Demo**: http://localhost:8080/websocket-client.html
+- **Actuator Health**: http://localhost:8080/actuator/health
+- **Métricas personalizadas**: http://localhost:8080/api/metrics/notifications
 
-### production (application.properties)
-```properties
-# Habilitar todos los endpoints de Actuator
-management.endpoints.web.exposure.include=*
-management.endpoint.health.show-details=always
-management.info.env.enabled=true
+## 🔧 Configuraciones Docker
 
-# Información de la aplicación
-info.app.name=API de Notificaciones en Tiempo Real
-info.app.description=Microservicio de notificaciones con WebSockets y Redis Pub/Sub
-info.app.version=1.0.0
-info.app.author=Alejandro
-```
-
-### Desarrollo (application-h2.properties)
-```properties
-# Misma configuración + información específica de desarrollo
-info.app.profile=h2-development
-info.app.version=1.0.0-DEV
-```
-
-## 🚀 Integración con Herramientas de Monitoreo
-
-### 📊 Grafana + Prometheus
-1. **Configurar Prometheus** para scraping:
+### docker-compose.yml (Producción)
 ```yaml
-# prometheus.yml
-scrape_configs:
-  - job_name: 'notifications-api'
-    static_configs:
-      - targets: ['localhost:8080']
-    metrics_path: '/actuator/prometheus'
+# Stack completo: App + MySQL + Redis
+# Persistencia de datos con volumes
+# Red interna para servicios
+# Reinicio automático
 ```
 
-2. **Dashboards sugeridos** en Grafana:
-   - Notificaciones enviadas por minuto
-   - Tasa de lectura en tiempo real
-   - Notificaciones pendientes (gauge)
-   - Operaciones de marcado masivo
-
-### 📈 Alertas Recomendadas
+### docker-compose.dev.yml (Desarrollo)
 ```yaml
-# Alertas para Prometheus
-- alert: NotificationsNotFlowing
-  expr: increase(notifications_sent_total[5m]) == 0
-  for: 5m
-  
-- alert: HighUnreadNotifications
-  expr: notifications_unread_total > 1000
-  
-- alert: LowReadRate
-  expr: (notifications_read_total / notifications_sent_total) < 0.5
+# Solo la aplicación con H2 embebida
+# Perfecto para desarrollo rápido
+# Sin dependencias externas
 ```
 
-## 🎯 Testing de Métricas
+## 📊 Monitoreo en Contenedores
 
-### Test Básico de Actuator
+### Métricas disponibles en Docker:
 ```bash
-# 1. Verificar que Actuator está activo
-curl "http://localhost:8080/actuator/health"
+# Health check de la aplicación
+curl http://localhost:8080/actuator/health
 
-# 2. Ver métricas disponibles
-curl "http://localhost:8080/actuator/metrics"
+# Métricas de la aplicación
+curl http://localhost:8080/api/metrics/notifications/summary
 
-# 3. Ver métricas específicas de notificaciones
-curl "http://localhost:8080/actuator/metrics/notifications.sent"
-
-# 4. Ver endpoint personalizado
-curl "http://localhost:8080/api/metrics/notifications/summary"
+# Métricas para Prometheus
+curl http://localhost:8080/actuator/prometheus
 ```
 
-### Test de Métricas en Tiempo Real
+### Logs de contenedores:
 ```bash
-# 1. Verificar métricas iniciales
-curl "http://localhost:8080/api/metrics/notifications" | jq '.total_sent'
+# Ver logs de la aplicación
+docker-compose logs -f app
 
-# 2. Enviar notificación
-curl -X POST "http://localhost:8080/api/notifications/send" \
-  -d "username=user1&message=Test métrica"
+# Ver logs de MySQL
+docker-compose logs -f mysql
 
-# 3. Verificar incremento
-curl "http://localhost:8080/api/metrics/notifications" | jq '.total_sent'
+# Ver logs de Redis
+docker-compose logs -f redis
+```
 
-# 4. Marcar como leída
-curl -X PUT "http://localhost:8080/api/notifications/1/read"
+## 🏗️ Arquitectura de Contenedores
 
-# 5. Verificar cambio en métricas de lectura
-curl "http://localhost:8080/api/metrics/notifications" | jq '.total_read'
+```
+┌─────────────────────────────────────────┐
+│              Docker Host                │
+├─────────────────────────────────────────┤
+│  ┌─────────────────┐  ┌──────────────┐  │
+│  │ notifications-  │  │   Redis      │  │
+│  │     api         │  │  :6379       │  │
+│  │   :8080         │  │              │  │
+│  └─────────────────┘  └──────────────┘  │
+│  ┌─────────────────────────────────────┐ │
+│  │            MySQL                    │ │
+│  │            :3306                    │ │
+│  └─────────────────────────────────────┘ │
+└─────────────────────────────────────────┘
 ```
 
 # 🔔 API de Notificaciones en Tiempo Real
