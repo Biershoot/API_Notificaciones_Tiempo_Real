@@ -16,19 +16,19 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/notifications")
 @RequiredArgsConstructor
-@Tag(name = "Notificaciones", description = "API para gestión de notificaciones en tiempo real")
+@Tag(name = "Notificaciones", description = "API para gestión de notificaciones en tiempo real con WebSockets")
 public class NotificationController {
 
     private final NotificationService notificationService;
 
-    // 📩 Enviar una notificación
+    // 📩 Enviar una notificación (ahora con WebSocket automático)
     @PostMapping("/send")
     @Operation(
-        summary = "Enviar una notificación",
-        description = "Crea y envía una nueva notificación a un usuario específico"
+        summary = "Enviar una notificación en tiempo real",
+        description = "Crea y envía una nueva notificación a un usuario específico. La notificación se envía automáticamente vía WebSocket a los clientes conectados."
     )
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Notificación enviada exitosamente"),
+        @ApiResponse(responseCode = "200", description = "Notificación enviada exitosamente via REST y WebSocket"),
         @ApiResponse(responseCode = "400", description = "Parámetros inválidos"),
         @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
     })

@@ -5,6 +5,7 @@ import com.alejandro.microservices.notifications.model.User;
 import com.alejandro.microservices.notifications.repository.NotificationRepository;
 import com.alejandro.microservices.notifications.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -16,6 +17,7 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
     // 📩 Enviar una notificación
     public Notification sendNotification(String username, String message) {
@@ -29,7 +31,12 @@ public class NotificationService {
                 .read(false)
                 .build();
 
-        return notificationRepository.save(notification);
+        Notification saved = notificationRepository.save(notification);
+
+        // 🚀 Enviar notificación en tiempo real via WebSocket
+        messagingTemplate.convertAndSend("/topic/notifications/" + username, saved);
+
+        return saved;
     }
 
     // 📋 Listar todas las notificaciones de un usuario
