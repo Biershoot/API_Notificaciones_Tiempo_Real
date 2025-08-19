@@ -6,6 +6,7 @@ import com.alejandro.microservices.notifications.repository.NotificationReposito
 import com.alejandro.microservices.notifications.repository.UserRepository;
 import com.alejandro.microservices.notifications.metrics.NotificationMetrics;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,10 +21,13 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
     private final SimpMessagingTemplate messagingTemplate;
-    private final RedisPublisher redisPublisher;
     private final NotificationMetrics metrics;
 
-    // 📩 Enviar una notificación con Redis Pub/Sub distribuido
+    // Redis Publisher es opcional
+    @Autowired(required = false)
+    private RedisPublisher redisPublisher;
+
+    // 📩 Enviar una notificación con Redis Pub/Sub distribuido (opcional)
     public Notification sendNotification(String username, String message) {
         User recipient = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
@@ -41,8 +45,13 @@ public class NotificationService {
         // 🔥 Contabilizar en métricas
         metrics.incrementSentNotifications();
 
-        // 🚀 Publicamos en Redis para sincronizar con todas las instancias
-        redisPublisher.publish(saved);
+        // 🚀 Si Redis está disponible, publicar. Si no, usar WebSocket directo
+        if (redisPublisher != null) {
+            redisPublisher.publish(saved);
+        } else {
+            // Fallback: envío directo por WebSocket
+            messagingTemplate.convertAndSend("/topic/notifications/" + username, saved);
+        }
 
         return saved;
     }

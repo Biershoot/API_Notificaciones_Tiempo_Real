@@ -3,11 +3,13 @@ package com.alejandro.microservices.notifications.service;
 import com.alejandro.microservices.notifications.model.Notification;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
+@ConditionalOnProperty(name = "spring.data.redis.host")
 @RequiredArgsConstructor
 @Slf4j
 public class RedisSubscriber {

@@ -2,12 +2,10 @@ package com.alejandro.microservices.notifications.metrics;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Counter;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Component
-@RequiredArgsConstructor
 public class NotificationMetrics {
 
     private final MeterRegistry meterRegistry;

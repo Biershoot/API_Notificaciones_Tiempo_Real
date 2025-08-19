@@ -1,5 +1,6 @@
 package com.alejandro.microservices.notifications.config;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -11,9 +12,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 @Configuration
+@ConditionalOnProperty(name = "spring.data.redis.host", matchIfMissing = false)
 public class RedisConfig {
 
     @Bean
+    @ConditionalOnProperty(name = "spring.data.redis.host")
     RedisMessageListenerContainer container(RedisConnectionFactory connectionFactory,
                                            MessageListenerAdapter listenerAdapter) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
@@ -23,6 +26,7 @@ public class RedisConfig {
     }
 
     @Bean
+    @ConditionalOnProperty(name = "spring.data.redis.host")
     MessageListenerAdapter listenerAdapter(RedisSubscriber subscriber) {
         return new MessageListenerAdapter(subscriber, "onMessage");
     }
