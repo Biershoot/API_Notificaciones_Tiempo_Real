@@ -18,8 +18,9 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
     private final SimpMessagingTemplate messagingTemplate;
+    private final RedisPublisher redisPublisher;
 
-    // 📩 Enviar una notificación
+    // 📩 Enviar una notificación con Redis Pub/Sub distribuido
     public Notification sendNotification(String username, String message) {
         User recipient = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
@@ -33,8 +34,9 @@ public class NotificationService {
 
         Notification saved = notificationRepository.save(notification);
 
-        // 🚀 Enviar notificación en tiempo real via WebSocket
-        messagingTemplate.convertAndSend("/topic/notifications/" + username, saved);
+        // 🚀 Publicamos en Redis para sincronizar con todas las instancias
+        // Redis se encarga de distribuir a todos los subscribers (instancias de la app)
+        redisPublisher.publish(saved);
 
         return saved;
     }
