@@ -19,6 +19,7 @@ public class Notification {
 
     private String message;
 
+    @Builder.Default
     private boolean read = false;
 
     private LocalDateTime timestamp;
