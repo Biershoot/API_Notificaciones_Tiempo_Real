@@ -62,6 +62,13 @@
             <version>2.2.0</version>
         </dependency>
 
+        <!-- Base de datos H2 embebida para desarrollo -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
