@@ -1,5 +1,211 @@
 # 🔔 API de Notificaciones en Tiempo Real
 
+API completa de notificaciones con WebSockets, Redis Pub/Sub, **persistencia avanzada** y **métricas con Spring Boot Actuator** para monitoreo en tiempo real.
+
+## 🚀 Características Avanzadas
+
+- ✅ **API REST** completa con Swagger UI
+- ✅ **WebSockets** para notificaciones en tiempo real
+- ✅ **Redis Pub/Sub** para arquitectura distribuida
+- ✅ **Persistencia avanzada** con estado de lectura
+- ✅ **Spring Boot Actuator** con métricas personalizadas
+- ✅ **Monitoreo en tiempo real** con contadores y gauges
+- ✅ **Métricas para Prometheus** listas para producción
+- ✅ **Filtros inteligentes** (todas/no leídas)
+- ✅ **Contadores** de notificaciones
+- ✅ **Marcado masivo** como leídas
+- ✅ **Base de datos** MySQL + H2 embebida
+- ✅ **Documentación** automática con OpenAPI
+- ✅ **Cliente demo avanzado** HTML incluido
+
+## 📊 Nuevos Endpoints de Actuator
+
+### 🔧 Endpoints Estándar de Actuator
+- `GET /actuator/health` - Estado de salud de la aplicación
+- `GET /actuator/metrics` - Métricas de JVM, CPU, memoria
+- `GET /actuator/prometheus` - Métricas en formato Prometheus
+- `GET /actuator/info` - Información de la aplicación
+- `GET /actuator/env` - Variables de entorno
+- `GET /actuator/loggers` - Configuración de logging
+
+### 📈 Endpoints Personalizados de Métricas
+- `GET /api/metrics/notifications` - **Métricas completas** del sistema
+- `GET /api/metrics/notifications/summary` - **Resumen ejecutivo** de métricas
+- `GET /actuator/notifications-metrics` - Endpoint Actuator personalizado
+
+## 🎯 Métricas Personalizadas Implementadas
+
+### 📊 Contadores (Counters)
+- **`notifications.sent`** - Total de notificaciones enviadas
+- **`notifications.read`** - Total de notificaciones leídas
+- **`notifications.unread.created`** - Total de notificaciones no leídas creadas
+- **`notifications.mark_all_read`** - Operaciones de marcar todas como leídas
+
+### 📈 Medidores (Gauges)
+- **`notifications.active.total`** - Notificaciones activas en tiempo real
+- **`notifications.unread.total`** - Notificaciones no leídas en tiempo real
+
+## 🧪 Casos de Uso de Monitoreo
+
+### Escenario 1: Dashboard de Operaciones
+```bash
+# Estado general del sistema
+curl "http://localhost:8080/actuator/health"
+
+# Métricas de rendimiento
+curl "http://localhost:8080/api/metrics/notifications/summary"
+```
+
+**Respuesta ejemplo:**
+```json
+{
+  "performance": {
+    "total_notifications_sent": 1250,
+    "total_notifications_read": 980,
+    "read_rate_percentage": 78
+  },
+  "current_state": {
+    "active_notifications": 1250,
+    "unread_notifications": 270,
+    "read_notifications": 980
+  },
+  "health_indicators": {
+    "system_active": true,
+    "notifications_flowing": true,
+    "users_engaging": true
+  }
+}
+```
+
+### Escenario 2: Monitoreo Prometheus
+```bash
+# Métricas listas para Prometheus
+curl "http://localhost:8080/actuator/prometheus" | grep notifications
+
+# Ejemplo de salida:
+# notifications_sent_total{type="notification"} 1250.0
+# notifications_read_total{type="notification"} 980.0
+# notifications_active_total 1250.0
+# notifications_unread_total 270.0
+```
+
+### Escenario 3: Monitoreo Detallado
+```bash
+# Métricas completas con detalles de BD
+curl "http://localhost:8080/api/metrics/notifications"
+```
+
+**Respuesta ejemplo:**
+```json
+{
+  "total_sent": 1250.0,
+  "total_read": 980.0,
+  "active_notifications": 1250.0,
+  "unread_notifications": 270.0,
+  "database_total": 1250,
+  "database_unread": 270,
+  "database_read": 980,
+  "read_percentage": 78,
+  "unread_percentage": 22,
+  "timestamp": 1703024400000,
+  "status": "active"
+}
+```
+
+## 🔧 Configuración de Actuator
+
+### production (application.properties)
+```properties
+# Habilitar todos los endpoints de Actuator
+management.endpoints.web.exposure.include=*
+management.endpoint.health.show-details=always
+management.info.env.enabled=true
+
+# Información de la aplicación
+info.app.name=API de Notificaciones en Tiempo Real
+info.app.description=Microservicio de notificaciones con WebSockets y Redis Pub/Sub
+info.app.version=1.0.0
+info.app.author=Alejandro
+```
+
+### Desarrollo (application-h2.properties)
+```properties
+# Misma configuración + información específica de desarrollo
+info.app.profile=h2-development
+info.app.version=1.0.0-DEV
+```
+
+## 🚀 Integración con Herramientas de Monitoreo
+
+### 📊 Grafana + Prometheus
+1. **Configurar Prometheus** para scraping:
+```yaml
+# prometheus.yml
+scrape_configs:
+  - job_name: 'notifications-api'
+    static_configs:
+      - targets: ['localhost:8080']
+    metrics_path: '/actuator/prometheus'
+```
+
+2. **Dashboards sugeridos** en Grafana:
+   - Notificaciones enviadas por minuto
+   - Tasa de lectura en tiempo real
+   - Notificaciones pendientes (gauge)
+   - Operaciones de marcado masivo
+
+### 📈 Alertas Recomendadas
+```yaml
+# Alertas para Prometheus
+- alert: NotificationsNotFlowing
+  expr: increase(notifications_sent_total[5m]) == 0
+  for: 5m
+  
+- alert: HighUnreadNotifications
+  expr: notifications_unread_total > 1000
+  
+- alert: LowReadRate
+  expr: (notifications_read_total / notifications_sent_total) < 0.5
+```
+
+## 🎯 Testing de Métricas
+
+### Test Básico de Actuator
+```bash
+# 1. Verificar que Actuator está activo
+curl "http://localhost:8080/actuator/health"
+
+# 2. Ver métricas disponibles
+curl "http://localhost:8080/actuator/metrics"
+
+# 3. Ver métricas específicas de notificaciones
+curl "http://localhost:8080/actuator/metrics/notifications.sent"
+
+# 4. Ver endpoint personalizado
+curl "http://localhost:8080/api/metrics/notifications/summary"
+```
+
+### Test de Métricas en Tiempo Real
+```bash
+# 1. Verificar métricas iniciales
+curl "http://localhost:8080/api/metrics/notifications" | jq '.total_sent'
+
+# 2. Enviar notificación
+curl -X POST "http://localhost:8080/api/notifications/send" \
+  -d "username=user1&message=Test métrica"
+
+# 3. Verificar incremento
+curl "http://localhost:8080/api/metrics/notifications" | jq '.total_sent'
+
+# 4. Marcar como leída
+curl -X PUT "http://localhost:8080/api/notifications/1/read"
+
+# 5. Verificar cambio en métricas de lectura
+curl "http://localhost:8080/api/metrics/notifications" | jq '.total_read'
+```
+
+# 🔔 API de Notificaciones en Tiempo Real
+
 API completa de notificaciones con WebSockets, Redis Pub/Sub y **persistencia avanzada** para gestión completa de estado de lectura.
 
 ## 🚀 Características Avanzadas
