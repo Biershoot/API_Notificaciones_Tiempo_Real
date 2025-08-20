@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <!-- Excluir clases generadas por Lombok -->
+    <Match>
+        <Class name="~.*\$.*Builder.*"/>
+    </Match>
+
+    <!-- Excluir warnings de serialización en DTOs -->
+    <Match>
+        <Class name="~.*\.dto\..*"/>
+        <Bug pattern="SE_NO_SERIALVERSIONID"/>
+    </Match>
+
+    <!-- Excluir warnings comunes de Spring Boot -->
+    <Match>
+        <Class name="~.*Application"/>
+        <Method name="main"/>
+        <Bug pattern="DM_EXIT"/>
+    </Match>
+
+    <!-- Excluir warnings de configuración -->
+    <Match>
+        <Class name="~.*Config"/>
+        <Bug pattern="UWF_UNWRITTEN_FIELD"/>
+    </Match>
+
+    <!-- Excluir warnings de tests -->
+    <Match>
+        <Class name="~.*Test.*"/>
+    </Match>
+
+</FindBugsFilter>
+

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- OWASP Dependency Check Suppressions -->
+<!-- Este archivo suprime falsas alertas conocidas en el escaneo de seguridad -->
+
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+
+    <!-- Suprimir alertas conocidas de Spring Boot -->
+    <suppress>
+        <notes><![CDATA[
+        Spring Boot - vulnerabilidades conocidas que no afectan nuestra implementación
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.boot/.*$</packageUrl>
+        <cve>CVE-2016-1000027</cve>
+    </suppress>
+
+    <!-- Suprimir alertas de H2 Database en desarrollo -->
+    <suppress>
+        <notes><![CDATA[
+        H2 Database - solo usado en desarrollo, no en producción
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.h2database/h2@.*$</packageUrl>
+        <cve>CVE-2021-42392</cve>
+    </suppress>
+
+    <!-- Suprimir alertas comunes de dependencias de desarrollo -->
+    <suppress>
+        <notes><![CDATA[
+        Lombok - herramienta de desarrollo que no afecta el runtime
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.projectlombok/lombok@.*$</packageUrl>
+    </suppress>
+
+    <!-- Suprimir alertas de Maven wrapper -->
+    <suppress>
+        <notes><![CDATA[
+        Maven wrapper - solo herramienta de build
+        ]]></notes>
+        <filePath regex="true">.*maven-wrapper\.jar</filePath>
+    </suppress>
+
+</suppressions>

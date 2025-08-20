@@ -1,0 +1,145 @@
+name: CI/CD Notifications API
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main", "develop" ]
+
+env:
+  JAVA_VERSION: '21'
+  MAVEN_OPTS: '-Xmx1024m'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Tests and Quality Checks
+
+    steps:
+      # 1️⃣ Clonar repositorio
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2️⃣ Configurar Java y Maven con cache
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: maven
+
+      # 3️⃣ Ejecutar tests unitarios
+      - name: Run unit tests
+        run: mvn test
+
+      # 4️⃣ Ejecutar tests de integración
+      - name: Run integration tests
+        run: mvn verify -P integration-tests
+
+      # 5️⃣ Generar reporte de cobertura
+      - name: Generate test coverage report
+        run: mvn jacoco:report
+
+      # 6️⃣ Subir reporte de cobertura a Codecov
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./target/site/jacoco/jacoco.xml
+          fail_ci_if_error: false
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    name: Build and Push Docker Image
+
+    steps:
+      # 1️⃣ Clonar repositorio
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2️⃣ Configurar Java y Maven
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: maven
+
+      # 3️⃣ Compilar aplicación
+      - name: Build with Maven
+        run: mvn clean package -DskipTests
+
+      # 4️⃣ Configurar Docker Buildx
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # 5️⃣ Iniciar sesión en DockerHub
+      - name: Login to DockerHub
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # 6️⃣ Extraer metadata de Docker
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/notifications-api
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      # 7️⃣ Construir y subir imagen Docker
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    name: Deploy to Kubernetes
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 6️⃣ Configurar kubectl
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: Configure Kubernetes context
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBECONFIG_DATA }}" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      # 7️⃣ Actualizar imagen en deployment
+      - name: Update deployment image
+        run: |
+          sed -i "s|notifications-api:latest|${{ secrets.DOCKERHUB_USERNAME }}/notifications-api:${{ github.sha }}|g" k8s/app-deployment.yml
+
+      # 8️⃣ Desplegar en Kubernetes
+      - name: Deploy to Kubernetes
+        run: |
+          kubectl apply -f k8s/
+          kubectl rollout status deployment/notifications-api --timeout=300s
+
+      # 9️⃣ Verificar despliegue
+      - name: Verify deployment
+        run: |
+          kubectl get pods -l app=notifications-api
+          kubectl get services

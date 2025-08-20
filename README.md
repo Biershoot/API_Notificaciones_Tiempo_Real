@@ -1,6 +1,34 @@
 # 🔔 API de Notificaciones en Tiempo Real
 
+[![CI/CD Pipeline](https://github.com/TU_USUARIO/notifications/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/TU_USUARIO/notifications/actions/workflows/ci-cd.yml)
+[![Security Scan](https://github.com/TU_USUARIO/notifications/actions/workflows/security.yml/badge.svg)](https://github.com/TU_USUARIO/notifications/actions/workflows/security.yml)
+[![codecov](https://codecov.io/gh/TU_USUARIO/notifications/branch/main/graph/badge.svg)](https://codecov.io/gh/TU_USUARIO/notifications)
+[![Docker Hub](https://img.shields.io/docker/pulls/TU_USUARIO/notifications-api.svg)](https://hub.docker.com/r/TU_USUARIO/notifications-api)
+
 API completa de notificaciones con WebSockets, Redis Pub/Sub, **persistencia avanzada**, **métricas con Spring Boot Actuator** y **contenerización Docker** para monitoreo en tiempo real.
+
+## 📊 CI/CD Pipeline
+
+Este proyecto incluye un pipeline completo de CI/CD con GitHub Actions que incluye:
+
+### 🔧 Pipeline de Integración Continua
+- **Tests Unitarios**: Ejecuta automáticamente con cada push/PR
+- **Tests de Integración**: Valida el funcionamiento completo del sistema
+- **Cobertura de Código**: Genera reportes con JaCoCo y sube a Codecov
+- **Análisis de Calidad**: Verifica la calidad del código
+
+### 🚀 Pipeline de Despliegue Continuo
+- **Build Multi-arquitectura**: Construye imágenes para AMD64/ARM64
+- **Push a DockerHub**: Sube automáticamente a DockerHub con tags inteligentes
+- **Deploy a Kubernetes**: Despliega automáticamente en producción (rama main)
+- **Verificación**: Valida que el despliegue sea exitoso
+
+### 🔒 Pipeline de Seguridad
+- **Escaneo de Vulnerabilidades**: OWASP Dependency Check
+- **Análisis Estático**: SpotBugs para detectar bugs
+- **Escaneo de Secretos**: GitLeaks para detectar credenciales expuestas
+- **CodeQL**: Análisis de seguridad de GitHub
+- **Docker Security**: Trivy para escanear imágenes Docker
 
 ## 🚀 Características Avanzadas
 
@@ -49,72 +77,106 @@ docker-compose up
 docker run -p 8080:8080 notifications-api:latest
 ```
 
-### 🎯 URLs disponibles después del despliegue:
-- **API REST**: http://localhost:8080/api/
-- **Swagger UI**: http://localhost:8080/swagger-ui.html
-- **Cliente WebSocket Demo**: http://localhost:8080/websocket-client.html
-- **Actuator Health**: http://localhost:8080/actuator/health
-- **Métricas personalizadas**: http://localhost:8080/api/metrics/notifications
+## ☸️ Despliegue en Kubernetes
 
-## 🔧 Configuraciones Docker
-
-### docker-compose.yml (Producción)
-```yaml
-# Stack completo: App + MySQL + Redis
-# Persistencia de datos con volumes
-# Red interna para servicios
-# Reinicio automático
-```
-
-### docker-compose.dev.yml (Desarrollo)
-```yaml
-# Solo la aplicación con H2 embebida
-# Perfecto para desarrollo rápido
-# Sin dependencias externas
-```
-
-## 📊 Monitoreo en Contenedores
-
-### Métricas disponibles en Docker:
+### 🚀 Despliegue automático
 ```bash
-# Health check de la aplicación
-curl http://localhost:8080/actuator/health
+# Windows
+.\deploy-k8s.bat
 
-# Métricas de la aplicación
-curl http://localhost:8080/api/metrics/notifications/summary
-
-# Métricas para Prometheus
-curl http://localhost:8080/actuator/prometheus
+# Linux/Mac
+./deploy-k8s.sh
 ```
 
-### Logs de contenedores:
+### 📋 Despliegue manual paso a paso
+```bash
+# 1. Aplicar todos los manifiestos
+kubectl apply -f k8s/
+
+# 2. Verificar el estado de los pods
+kubectl get pods
+
+# 3. Verificar los servicios
+kubectl get svc
+
+# 4. Para Minikube, obtener la URL de acceso
+minikube service notifications-api-service
+```
+
+### 🎯 Arquitectura Kubernetes
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    Kubernetes Cluster                   │
+├─────────────────────────────────────────────────────────┤
+│  ┌─────────────────────────────────────────────────┐    │
+│  │           notifications-api (2 replicas)        │    │
+│  │                 :8080                           │    │
+│  └─────────────────────────────────────────────────┘    │
+│  ┌─────────────────┐    ┌─────────────────────────┐     │
+│  │      Redis      │    │         MySQL           │     │
+│  │     :6379       │    │         :3306           │     │
+│  └─────────────────┘    └─────────────────────────┘     │
+│                                                         │
+│  LoadBalancer/NodePort → notifications-api-service     │
+└─────────────────────────────────────────────────────────┘
+```
+
+### 🌐 Componentes desplegados:
+
+**📱 API de Notificaciones:**
+- 2 replicas para alta disponibilidad
+- Health checks (liveness + readiness probes)
+- Configuración automática con MySQL y Redis
+
+**⚡ Redis:**
+- Persistencia habilitada
+- Recursos limitados para eficiencia
+- Service interno (ClusterIP)
+
+**🗄️ MySQL:**
+- Base de datos persistente
+- Health checks de conexión
+- Usuario y base de datos creados automáticamente
+
+**🌍 Acceso externo:**
+- LoadBalancer para cloud providers
+- NodePort para Minikube local
+- Puerto 30080 para desarrollo local
+
+### 📊 Monitoreo en Kubernetes
+
 ```bash
 # Ver logs de la aplicación
-docker-compose logs -f app
+kubectl logs -f deployment/notifications-api
 
 # Ver logs de MySQL
-docker-compose logs -f mysql
+kubectl logs -f deployment/mysql
 
 # Ver logs de Redis
-docker-compose logs -f redis
+kubectl logs -f deployment/redis
+
+# Escalar la aplicación
+kubectl scale deployment notifications-api --replicas=3
+
+# Ver métricas de recursos
+kubectl top pods
 ```
 
-## 🏗️ Arquitectura de Contenedores
+### 🔧 Comandos útiles
 
-```
-┌─────────────────────────────────────────┐
-│              Docker Host                │
-├─────────────────────────────────────────┤
-│  ┌─────────────────┐  ┌──────────────┐  │
-│  │ notifications-  │  │   Redis      │  │
-│  │     api         │  │  :6379       │  │
-│  │   :8080         │  │              │  │
-│  └─────────────────┘  └──────────────┘  │
-│  ┌─────────────────────────────────────┐ │
-│  │            MySQL                    │ │
-│  │            :3306                    │ │
-│  └─────────────────────────────────────┘ │
-└─────────────────────────────────────────┘
+```bash
+# Reiniciar deployment
+kubectl rollout restart deployment/notifications-api
+
+# Ver descripción detallada de un pod
+kubectl describe pod <pod-name>
+
+# Acceso directo a un pod
+kubectl exec -it <pod-name> -- /bin/bash
+
+# Port forward para testing local
+kubectl port-forward svc/notifications-api-service 8080:80
 ```
 
 # 🔔 API de Notificaciones en Tiempo Real
