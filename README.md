@@ -610,11 +610,11 @@ SENDGRID_FROM_EMAIL=tu_correo@empresa.com
 
 ## 👨‍💻 **Desarrollador**
 
-**Alejandro** - Desarrollador Full Stack Senior
+**Alejandro** - Backend Engineer & Desarrollador Full Stack Senior
 - 🐙 **GitHub**: [@Biershoot](https://github.com/Biershoot)
 - 💼 **LinkedIn**: [Alejandro](https://linkedin.com/in/tu-perfil)
-- 📧 **Email**: alejandro@empresa.com
-- 🌐 **Portfolio**: [tu-portfolio.com](https://tu-portfolio.com)
+- 📧 **Email**: alejodim27@gmail.com
+- 🌐 **Portfolio**: [GitHub Portfolio](https://github.com/Biershoot)
 
 ### **Habilidades Técnicas**
 - **Backend**: Java, Spring Boot, JPA/Hibernate, Redis
