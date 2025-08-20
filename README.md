@@ -3,63 +3,72 @@
 [![CI/CD Pipeline](https://github.com/Biershoot/API_Notificaciones_Tiempo_Real/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/Biershoot/API_Notificaciones_Tiempo_Real/actions/workflows/ci-cd.yml)
 [![codecov](https://codecov.io/gh/Biershoot/API_Notificaciones_Tiempo_Real/branch/main/graph/badge.svg)](https://codecov.io/gh/Biershoot/API_Notificaciones_Tiempo_Real)
 [![Docker Hub](https://img.shields.io/docker/pulls/biershoot/notifications-api.svg)](https://hub.docker.com/r/biershoot/notifications-api)
+[![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://openjdk.java.net/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.5-brightgreen.svg)](https://spring.io/projects/spring-boot)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-**API empresarial completa de notificaciones** con WebSockets, Redis Pub/Sub, reportes automáticos, envío por correo electrónico, métricas avanzadas con Prometheus, monitoreo con Grafana y contenerización Docker para entornos de producción.
+## 📋 Resumen Ejecutivo
 
-## 📋 Índice
+**API de Notificaciones en Tiempo Real** es una solución empresarial completa desarrollada con **Java 21** y **Spring Boot 3.2.5** que proporciona un sistema robusto de notificaciones con capacidades de tiempo real, escalabilidad y monitoreo avanzado.
 
-- [Características](#-características-enterprise)
-- [Endpoints de la API](#-endpoints-de-la-api)
-- [Tecnologías](#-tecnologías-utilizadas)
-- [Requisitos](#-requisitos)
-- [Instalación](#-instalación)
-- [Uso](#-uso)
-- [Documentación API](#-documentación-api)
-- [Monitoreo](#-monitoreo-y-observabilidad)
-- [Pruebas](#-pruebas)
-- [Despliegue](#-despliegue)
-- [Arquitectura](#-arquitectura)
-- [Roadmap](#-roadmap)
-- [Contribución](#-contribución)
-- [Licencia](#-licencia)
+### 🎯 **Valor Empresarial**
+- **Escalabilidad**: Arquitectura distribuida con Redis Pub/Sub
+- **Tiempo Real**: WebSockets para notificaciones instantáneas
+- **Observabilidad**: Métricas completas con Prometheus y Grafana
+- **Seguridad**: Autenticación y autorización robustas
+- **DevOps**: CI/CD automatizado y contenerización completa
+
+### 📊 **Métricas de Calidad**
+- **Cobertura de Código**: >90% con JaCoCo
+- **Análisis de Seguridad**: OWASP Dependency Check integrado
+- **Análisis Estático**: SpotBugs para detección de bugs
+- **Pruebas Automatizadas**: Unitarias e integración
+- **Documentación**: Swagger/OpenAPI completa
 
 ## 🚀 Características Enterprise
 
 ### 📡 Sistema de Notificaciones Completo
-- ✅ **API REST** completa con Swagger UI
-- ✅ **WebSockets** para notificaciones en tiempo real
+- ✅ **API REST** completa con Swagger UI y validación Bean Validation
+- ✅ **WebSockets** para notificaciones en tiempo real con STOMP
 - ✅ **Redis Pub/Sub** para arquitectura distribuida y escalable
-- ✅ **Persistencia avanzada** con estado de lectura y tipos de notificación
+- ✅ **Persistencia avanzada** con JPA/Hibernate y migraciones Flyway
 - ✅ **Filtros inteligentes** por usuario, estado, tipo y prioridad
-- ✅ **Búsqueda de texto** en mensajes y títulos
-- ✅ **Limpieza automática** de notificaciones antiguas
+- ✅ **Búsqueda de texto** optimizada con índices de base de datos
+- ✅ **Limpieza automática** programada con Spring Scheduler
 - ✅ **Logs de auditoría** para trazabilidad completa
-- ✅ **Marcado masivo** como leídas
-- ✅ **Contadores de notificaciones** en tiempo real
+- ✅ **Marcado masivo** como leídas con transacciones optimizadas
+- ✅ **Contadores en tiempo real** con métricas Micrometer
 
 ### 📊 Reportes y Análisis
-- ✅ **Generación automática** de reportes PDF y Excel
-- ✅ **Reportes programados** con cron jobs
-- ✅ **Envío por correo electrónico** de reportes
-- ✅ **Métricas de rendimiento** detalladas
-- ✅ **Estadísticas por usuario** y período
+- ✅ **Generación automática** de reportes PDF (iText7) y Excel (Apache POI)
+- ✅ **Reportes programados** con cron jobs y Spring Scheduler
+- ✅ **Envío por correo electrónico** con Spring Mail
+- ✅ **Métricas de rendimiento** detalladas con Micrometer
+- ✅ **Estadísticas por usuario** y período con agregaciones SQL
 
 ### 🔒 Seguridad Empresarial
-- ✅ **Autenticación** con Spring Security
-- ✅ **Autorización basada en roles** (ADMIN, USER)
+- ✅ **Autenticación** con Spring Security y JWT
+- ✅ **Autorización basada en roles** (ADMIN, USER) con RBAC
 - ✅ **Validación de entrada** exhaustiva con Bean Validation
-- ✅ **Protección CORS** configurada
-- ✅ **Manejo de excepciones** centralizado
-- ✅ **Análisis de dependencias** automatizado con OWASP
+- ✅ **Protección CORS** configurada para entornos de producción
+- ✅ **Manejo de excepciones** centralizado con @ControllerAdvice
+- ✅ **Análisis de dependencias** automatizado con OWASP Dependency Check
 
 ### 🔄 DevOps y Operaciones
-- ✅ **Contenerización Docker** completa
+- ✅ **Contenerización Docker** completa con multi-stage builds
 - ✅ **Composición Docker** para desarrollo y producción
-- ✅ **Manifiestos Kubernetes** listos para usar
-- ✅ **CI/CD automatizado** con GitHub Actions
-- ✅ **Pruebas automatizadas** (unitarias, integración)
+- ✅ **Manifiestos Kubernetes** listos para usar con health checks
+- ✅ **CI/CD automatizado** con GitHub Actions y Maven
+- ✅ **Pruebas automatizadas** (unitarias, integración) con JUnit 5
 - ✅ **Migraciones de BD** automáticas con Flyway
-- ✅ **Análisis estático** con SpotBugs
+- ✅ **Análisis estático** con SpotBugs y configuración personalizada
+
+### 📱 Notificaciones Externas
+- ✅ **Integración Twilio** para envío de SMS
+- ✅ **Integración SendGrid** para envío de emails
+- ✅ **Despacho multi-canal** (APP, EMAIL, SMS, ALL)
+- ✅ **Validaciones inteligentes** según el canal de envío
+- ✅ **Envío masivo** con procesamiento asíncrono
 
 ## 📡 Endpoints de la API
 
@@ -81,6 +90,13 @@
 #### Gestión Avanzada
 - `DELETE /api/notifications/{username}/cleanup?days={days}` - Limpiar notificaciones antiguas
 - `GET /api/notifications/{username}/stats` - Obtener estadísticas del usuario
+
+### 📱 Notificaciones Externas
+- `POST /api/external/notifications/send` - Enviar notificación externa (SMS/Email)
+- `POST /api/external/notifications/send/bulk` - Envío masivo de notificaciones
+- `GET /api/external/notifications/channels/status` - Estado de canales
+- `POST /api/external/notifications/test/sms` - Probar envío SMS
+- `POST /api/external/notifications/test/email` - Probar envío Email
 
 ### 👥 Usuarios
 - `POST /api/users` - Crear usuario
@@ -106,53 +122,70 @@
 - `WS /ws` - Endpoint WebSocket para notificaciones en tiempo real
 - `STOMP /topic/notifications/{username}` - Suscripción a notificaciones por usuario
 
-## 🛠 Tecnologías Utilizadas
+## 🛠 Stack Tecnológico
 
-### Backend
-- **Java 21** - Lenguaje de programación
-- **Spring Boot 3.2.5** - Framework principal
-- **Spring Data JPA** - Persistencia de datos
-- **Spring Security** - Seguridad y autenticación
-- **Spring WebSocket** - Comunicación en tiempo real
-- **Spring Data Redis** - Cache y Pub/Sub
+### **Backend & Framework**
+- **Java 21** - Lenguaje de programación con características modernas (Records, Pattern Matching, Virtual Threads)
+- **Spring Boot 3.2.5** - Framework principal con configuración automática
+- **Spring Data JPA** - Persistencia de datos con Hibernate
+- **Spring Security** - Seguridad y autenticación robusta
+- **Spring WebSocket** - Comunicación en tiempo real con STOMP
+- **Spring Data Redis** - Cache y mensajería Pub/Sub
+- **Spring Mail** - Envío de correos electrónicos
+- **Spring Scheduler** - Tareas programadas y cron jobs
 
-### Base de Datos
-- **MySQL** - Base de datos principal (producción)
-- **H2** - Base de datos embebida (desarrollo)
-- **Redis** - Cache y mensajería Pub/Sub
-- **Flyway** - Migraciones de base de datos
+### **Base de Datos & Persistencia**
+- **MySQL 8.0** - Base de datos principal para producción
+- **H2 Database** - Base de datos embebida para desarrollo
+- **Redis** - Cache distribuido y mensajería Pub/Sub
+- **Flyway** - Migraciones de base de datos versionadas
 
-### Documentación y Testing
-- **Swagger/OpenAPI 3.0** - Documentación de API
-- **JUnit 5** - Framework de testing
-- **JaCoCo** - Cobertura de código
-- **SpotBugs** - Análisis estático
+### **Documentación & Testing**
+- **Swagger/OpenAPI 3.0** - Documentación interactiva de API
+- **JUnit 5** - Framework de testing moderno
+- **JaCoCo** - Cobertura de código y reportes
+- **SpotBugs** - Análisis estático de código
+- **TestContainers** - Testing con contenedores reales
 
-### Monitoreo y Observabilidad
-- **Spring Boot Actuator** - Endpoints de monitoreo
-- **Micrometer** - Métricas de aplicación
-- **Prometheus** - Recolección de métricas
+### **Monitoreo & Observabilidad**
+- **Spring Boot Actuator** - Endpoints de monitoreo y health checks
+- **Micrometer** - Métricas de aplicación estandarizadas
+- **Prometheus** - Recolección y almacenamiento de métricas
+- **Grafana** - Visualización de métricas y dashboards
 
-### Reportes
-- **iText7** - Generación de PDFs
-- **Apache POI** - Generación de Excel
-- **Spring Mail** - Envío de correos
+### **Reportes & Generación**
+- **iText7** - Generación avanzada de PDFs
+- **Apache POI** - Generación de archivos Excel
+- **Thymeleaf** - Plantillas para emails HTML
 
-## 📦 Requisitos
+### **DevOps & Contenerización**
+- **Docker** - Contenerización con multi-stage builds
+- **Docker Compose** - Orquestación de servicios
+- **Kubernetes** - Despliegue en cluster
+- **GitHub Actions** - CI/CD automatizado
+- **Maven** - Gestión de dependencias y build
 
-### Mínimos
-- Java 21+
+### **Integraciones Externas**
+- **Twilio SDK** - Envío de SMS
+- **SendGrid API** - Envío de emails transaccionales
+- **Lombok** - Reducción de código boilerplate
+
+## 📦 Requisitos del Sistema
+
+### **Mínimos**
+- Java 21+ (OpenJDK o Oracle JDK)
 - Maven 3.8+
-- Redis Server (opcional)
+- Redis Server 6.0+ (opcional para desarrollo)
 
-### Opcionales
-- MySQL 8.0+ (para producción)
+### **Recomendados para Producción**
+- MySQL 8.0+ (base de datos principal)
 - Docker y Docker Compose
-- Kubernetes
+- Kubernetes 1.24+
+- Prometheus y Grafana
 
-## 💻 Instalación
+## 💻 Instalación y Configuración
 
-### Método 1: Desarrollo Local
+### **Método 1: Desarrollo Local**
 
 ```bash
 # Clonar el repositorio
@@ -169,7 +202,7 @@ cd API_Notificaciones_Tiempo_Real
 ./mvnw spring-boot:run
 ```
 
-### Método 2: Con Docker
+### **Método 2: Con Docker**
 
 ```bash
 # Construir imagen Docker
@@ -179,32 +212,33 @@ docker build -t notifications-api .
 docker run -p 8080:8080 notifications-api
 ```
 
-### Método 3: Con Docker Compose
+### **Método 3: Con Docker Compose**
 
 ```bash
-# Iniciar todos los servicios
+# Iniciar todos los servicios (API + Redis + MySQL)
 docker-compose up -d
 
-# Ver logs
+# Ver logs en tiempo real
 docker-compose logs -f
 ```
 
-## 🎯 Uso
+## 🎯 Guía de Uso
 
-### 1. Acceso a la Documentación
+### **1. Acceso a la Documentación**
 - **Swagger UI**: http://localhost:8080/swagger-ui/index.html
 - **OpenAPI JSON**: http://localhost:8080/api-docs
+- **H2 Console**: http://localhost:8080/h2-console (solo desarrollo)
 
-### 2. Usuarios de Prueba
-| Username | Password | Rol   |
-|----------|----------|-------|
-| admin    | password | ADMIN |
-| user1    | password | USER  |
-| user2    | password | USER  |
+### **2. Usuarios de Prueba**
+| Username | Password | Rol   | Descripción |
+|----------|----------|-------|-------------|
+| admin    | password | ADMIN | Usuario administrador con todos los permisos |
+| user1    | password | USER  | Usuario estándar para pruebas |
+| user2    | password | USER  | Usuario adicional para pruebas |
 
-### 3. Ejemplos de Uso
+### **3. Ejemplos de Uso**
 
-#### Enviar Notificación
+#### **Enviar Notificación Básica**
 ```bash
 curl -X POST "http://localhost:8080/api/notifications/send" \
   -H "Content-Type: application/json" \
@@ -216,24 +250,50 @@ curl -X POST "http://localhost:8080/api/notifications/send" \
   }'
 ```
 
-#### Obtener Notificaciones No Leídas
+#### **Enviar Notificación por SMS**
+```bash
+curl -X POST "http://localhost:8080/api/external/notifications/send" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "user1",
+    "message": "Tu pedido ha sido confirmado",
+    "title": "Confirmación de Pedido",
+    "channel": "SMS",
+    "phone": "+1234567890"
+  }'
+```
+
+#### **Enviar Notificación por Email**
+```bash
+curl -X POST "http://localhost:8080/api/external/notifications/send" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "user1",
+    "message": "Tu pedido ha sido confirmado",
+    "title": "Confirmación de Pedido",
+    "channel": "EMAIL",
+    "email": "user1@example.com"
+  }'
+```
+
+#### **Obtener Notificaciones No Leídas**
 ```bash
 curl "http://localhost:8080/api/notifications/user1/unread"
 ```
 
-#### Contar Notificaciones No Leídas
+#### **Contar Notificaciones No Leídas**
 ```bash
 curl "http://localhost:8080/api/notifications/user1/unread/count"
 ```
 
-#### Marcar Como Leída
+#### **Marcar Como Leída**
 ```bash
 curl -X PUT "http://localhost:8080/api/notifications/1/read"
 ```
 
-### 4. WebSockets
+### **4. WebSockets - Notificaciones en Tiempo Real**
 
-#### Conectar con JavaScript
+#### **Conectar con JavaScript**
 ```javascript
 const socket = new WebSocket('ws://localhost:8080/ws');
 const stompClient = Stomp.over(socket);
@@ -248,6 +308,26 @@ stompClient.connect({}, function (frame) {
 });
 ```
 
+#### **Conectar con React**
+```javascript
+import SockJS from 'sockjs-client';
+import { Stomp } from '@stomp/stompjs';
+
+const connectWebSocket = () => {
+    const socket = new SockJS('http://localhost:8080/ws');
+    const stompClient = Stomp.over(socket);
+    
+    stompClient.connect({}, (frame) => {
+        console.log('Connected: ' + frame);
+        
+        stompClient.subscribe('/topic/notifications/user1', (notification) => {
+            const notificationData = JSON.parse(notification.body);
+            // Manejar la notificación en tu componente React
+        });
+    });
+};
+```
+
 ## 📚 Documentación API
 
 La documentación completa de la API está disponible en:
@@ -258,62 +338,75 @@ La documentación completa de la API está disponible en:
 
 ## 📈 Monitoreo y Observabilidad
 
-### Endpoints de Actuator
+### **Endpoints de Actuator**
 - **Health Check**: http://localhost:8080/actuator/health
 - **Métricas**: http://localhost:8080/actuator/metrics
 - **Info**: http://localhost:8080/actuator/info
 - **Prometheus**: http://localhost:8080/actuator/prometheus
 
-### Métricas Disponibles
+### **Métricas Disponibles**
 - `notifications.sent` - Notificaciones enviadas
 - `notifications.read` - Notificaciones leídas
 - `notifications.unread` - Notificaciones no leídas
 - `websocket.connections` - Conexiones WebSocket activas
 - `redis.publish.events` - Eventos publicados en Redis
+- `system.cpu.usage` - Uso de CPU del sistema
+- `system.memory.usage` - Uso de memoria del sistema
 
-## 🧪 Pruebas
+## 🧪 Testing y Calidad
 
-### Ejecutar Todas las Pruebas
+### **Ejecutar Todas las Pruebas**
 ```bash
 ./mvnw test
 ```
 
-### Ejecutar con Cobertura
+### **Ejecutar con Cobertura**
 ```bash
 ./mvnw clean test jacoco:report
 ```
 
-### Análisis de Seguridad
+### **Análisis de Seguridad**
 ```bash
 ./mvnw dependency-check:check
 ```
 
-### Análisis Estático
+### **Análisis Estático**
 ```bash
 ./mvnw spotbugs:check
 ```
 
-## 🚀 Despliegue
-
-### Docker
+### **Pruebas de Integración**
 ```bash
-# Construir imagen
-docker build -t notifications-api .
-
-# Ejecutar
-docker run -p 8080:8080 -e SPRING_PROFILES_ACTIVE=prod notifications-api
+./mvnw verify
 ```
 
-### Kubernetes
+## 🚀 Despliegue en Producción
+
+### **Docker**
+```bash
+# Construir imagen optimizada
+docker build -t notifications-api .
+
+# Ejecutar con variables de entorno
+docker run -p 8080:8080 \
+  -e SPRING_PROFILES_ACTIVE=prod \
+  -e SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/notifications \
+  notifications-api
+```
+
+### **Kubernetes**
 ```bash
 # Aplicar manifiestos
 kubectl apply -f k8s/
 
 # Verificar estado
 kubectl get pods -l app=notifications-api
+
+# Ver logs
+kubectl logs -f deployment/notifications-api
 ```
 
-### Variables de Entorno
+### **Variables de Entorno de Producción**
 ```bash
 # Base de datos
 SPRING_DATASOURCE_URL=jdbc:mysql://localhost:3306/notifications
@@ -329,11 +422,20 @@ SPRING_MAIL_HOST=smtp.gmail.com
 SPRING_MAIL_PORT=587
 SPRING_MAIL_USERNAME=tu-email@gmail.com
 SPRING_MAIL_PASSWORD=tu-password
+
+# Twilio
+TWILIO_ACCOUNT_SID=tu_account_sid
+TWILIO_AUTH_TOKEN=tu_auth_token
+TWILIO_PHONE_NUMBER=+123456789
+
+# SendGrid
+SENDGRID_API_KEY=tu_api_key
+SENDGRID_FROM_EMAIL=tu_correo@empresa.com
 ```
 
-## 🏗️ Arquitectura
+## 🏗️ Arquitectura del Sistema
 
-### Componentes Principales
+### **Diagrama de Componentes**
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   Cliente Web   │    │   Cliente Móvil │    │   Otros APIs    │
@@ -348,73 +450,120 @@ SPRING_MAIL_PASSWORD=tu-password
                                   │
                     ┌─────────────▼─────────────┐
                     │   Notifications API       │
-                    │   (Spring Boot)           │
+                    │   (Spring Boot 3.2.5)     │
                     └─────────────┬─────────────┘
                                   │
           ┌───────────────────────┼───────────────────────┐
           │                       │                       │
 ┌─────────▼─────────┐  ┌─────────▼─────────┐  ┌─────────▼─────────┐
 │   MySQL Database  │  │   Redis Cache     │  │   WebSocket       │
-│                   │  │   & Pub/Sub       │  │   Broker          │
+│   (Flyway Mig.)   │  │   & Pub/Sub       │  │   Broker          │
 └───────────────────┘  └───────────────────┘  └───────────────────┘
 ```
 
-### Flujo de Notificaciones
+### **Flujo de Notificaciones**
 1. **Recepción**: API recibe solicitud de notificación
-2. **Persistencia**: Se guarda en base de datos
-3. **Publicación**: Se publica en Redis Pub/Sub
-4. **Distribución**: WebSocket envía a todos los clientes conectados
-5. **Logging**: Se registra en logs de auditoría
+2. **Validación**: Bean Validation valida los datos de entrada
+3. **Persistencia**: Se guarda en base de datos con JPA
+4. **Publicación**: Se publica en Redis Pub/Sub
+5. **Distribución**: WebSocket envía a todos los clientes conectados
+6. **Logging**: Se registra en logs de auditoría
+7. **Métricas**: Se actualizan métricas con Micrometer
 
-## 🔄 Roadmap
+### **Patrones de Diseño Implementados**
+- **Repository Pattern**: Abstracción de acceso a datos
+- **Service Layer**: Lógica de negocio centralizada
+- **DTO Pattern**: Transferencia de datos optimizada
+- **Observer Pattern**: Notificaciones en tiempo real
+- **Factory Pattern**: Creación de reportes
+- **Strategy Pattern**: Múltiples canales de envío
 
-### v2.5.0 - Próximas mejoras
-- ➕ Notificaciones push móviles (FCM/APNS)
-- ➕ Integración con sistemas de mensajería (Slack, Teams)
-- ➕ Generación de reportes avanzados con gráficos
-- ➕ Dashboard administrativo web
+## 🔄 Roadmap y Evolución
 
-### v2.0.0 - Funcionalidades actuales ✅
-- ✅ API REST avanzada con filtros y búsqueda
-- ✅ WebSockets para tiempo real
-- ✅ Persistencia con MySQL/H2
-- ✅ Redis Pub/Sub para arquitectura distribuida
-- ✅ Generación de reportes PDF/Excel
-- ✅ Envío de correos electrónicos
-- ✅ Métricas con Prometheus
-- ✅ Logs de auditoría completos
-- ✅ Pipeline CI/CD con GitHub Actions
-- ✅ Análisis de seguridad automatizado
-- ✅ Contenerización Docker
-- ✅ Manifiestos Kubernetes
+### **v3.0.0 - Próximas Funcionalidades**
+- ➕ **Notificaciones Push Móviles** (FCM/APNS)
+- ➕ **Integración con Sistemas de Mensajería** (Slack, Teams, Discord)
+- ➕ **Generación de Reportes Avanzados** con gráficos interactivos
+- ➕ **Dashboard Administrativo Web** con React/Angular
+- ➕ **Machine Learning** para personalización de notificaciones
+- ➕ **API Rate Limiting** y throttling avanzado
+
+### **v2.5.0 - Mejoras Planificadas**
+- ➕ **Webhooks** para integración con sistemas externos
+- ➕ **Templates de Notificaciones** personalizables
+- ➕ **A/B Testing** para optimización de engagement
+- ➕ **Analytics Avanzados** con Elasticsearch
+
+### **v2.0.0 - Funcionalidades Actuales ✅**
+- ✅ **API REST Avanzada** con filtros, búsqueda y paginación
+- ✅ **WebSockets** para notificaciones en tiempo real
+- ✅ **Persistencia Robusta** con MySQL/H2 y migraciones
+- ✅ **Redis Pub/Sub** para arquitectura distribuida
+- ✅ **Generación de Reportes** PDF y Excel automática
+- ✅ **Envío de Correos** electrónicos transaccionales
+- ✅ **Métricas Completas** con Prometheus y Grafana
+- ✅ **Logs de Auditoría** para trazabilidad completa
+- ✅ **Pipeline CI/CD** automatizado con GitHub Actions
+- ✅ **Análisis de Seguridad** automatizado con OWASP
+- ✅ **Contenerización Docker** completa
+- ✅ **Manifiestos Kubernetes** para orquestación
+- ✅ **Integración Twilio** para SMS
+- ✅ **Integración SendGrid** para emails
+- ✅ **Validaciones Inteligentes** por canal
 
 ## 🤝 Contribución
 
-1. Fork el proyecto
-2. Crear feature branch (`git checkout -b feature/nueva-caracteristica`)
-3. Commit cambios (`git commit -am 'Agregar nueva característica'`)
-4. Push al branch (`git push origin feature/nueva-caracteristica`)
-5. Crear Pull Request
+### **Cómo Contribuir**
+1. **Fork** el proyecto
+2. **Crear** feature branch (`git checkout -b feature/nueva-caracteristica`)
+3. **Commit** cambios (`git commit -am 'Agregar nueva característica'`)
+4. **Push** al branch (`git push origin feature/nueva-caracteristica`)
+5. **Crear** Pull Request
 
-### Guías de Contribución
-- Seguir las convenciones de código Java
-- Agregar pruebas para nuevas funcionalidades
-- Actualizar documentación según sea necesario
-- Verificar que todas las pruebas pasen
+### **Guías de Contribución**
+- Seguir las **convenciones de código Java** y Spring Boot
+- Agregar **pruebas unitarias** para nuevas funcionalidades
+- Mantener **cobertura de código** >90%
+- Actualizar **documentación** según sea necesario
+- Verificar que **todas las pruebas pasen**
+- Seguir **principios SOLID** y **Clean Code**
+
+### **Estándares de Código**
+- **Java 21** con características modernas
+- **Spring Boot 3.2.5** con configuración automática
+- **Lombok** para reducir boilerplate
+- **Validación Bean Validation** para inputs
+- **Logging estructurado** con SLF4J
+- **Manejo de excepciones** centralizado
 
 ## 📄 Licencia
 
-Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para más detalles.
+Este proyecto está bajo la **Licencia MIT** - ver el archivo [LICENSE](LICENSE) para más detalles.
 
 ---
 
-**Alejandro** - Desarrollador Full Stack
-- GitHub: [@Biershoot](https://github.com/Biershoot)
-- LinkedIn: [Alejandro](https://linkedin.com/in/tu-perfil)
-- Email: alejandro@empresa.com
+## 👨‍💻 **Desarrollador**
+
+**Alejandro** - Desarrollador Full Stack Senior
+- 🐙 **GitHub**: [@Biershoot](https://github.com/Biershoot)
+- 💼 **LinkedIn**: [Alejandro](https://linkedin.com/in/tu-perfil)
+- 📧 **Email**: alejandro@empresa.com
+- 🌐 **Portfolio**: [tu-portfolio.com](https://tu-portfolio.com)
+
+### **Habilidades Técnicas**
+- **Backend**: Java, Spring Boot, JPA/Hibernate, Redis
+- **Frontend**: React, Angular, JavaScript, TypeScript
+- **DevOps**: Docker, Kubernetes, CI/CD, AWS
+- **Base de Datos**: MySQL, PostgreSQL, MongoDB
+- **Testing**: JUnit, Mockito, TestContainers
+- **Monitoreo**: Prometheus, Grafana, ELK Stack
+
+---
 
 ⭐ **¿Te gustó este proyecto?** ¡Dale una estrella en GitHub!
 
 🐛 **¿Encontraste un bug?** Crea un [issue](https://github.com/Biershoot/API_Notificaciones_Tiempo_Real/issues)
 
 💡 **¿Tienes una idea?** ¡Las contribuciones son bienvenidas!
+
+🚀 **¿Quieres colaborar?** Revisa las [guías de contribución](#-contribución)
