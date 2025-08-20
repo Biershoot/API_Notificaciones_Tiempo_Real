@@ -5,7 +5,6 @@
 [![Docker Hub](https://img.shields.io/docker/pulls/biershoot/notifications-api.svg)](https://hub.docker.com/r/biershoot/notifications-api)
 [![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://openjdk.java.net/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.5-brightgreen.svg)](https://spring.io/projects/spring-boot)
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ## 📋 Resumen Ejecutivo
 
@@ -605,9 +604,7 @@ SENDGRID_FROM_EMAIL=tu_correo@empresa.com
 - **Logging estructurado** con SLF4J
 - **Manejo de excepciones** centralizado
 
-## 📄 Licencia
 
-Este proyecto está bajo la **Licencia MIT** - ver el archivo [LICENSE](LICENSE) para más detalles.
 
 ---
 

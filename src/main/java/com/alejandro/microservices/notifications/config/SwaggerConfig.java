@@ -28,17 +28,12 @@ public class SwaggerConfig {
         contact.setName("Alejandro");
         contact.setUrl("https://github.com/Biershoot");
 
-        License license = new License()
-                .name("MIT License")
-                .url("https://choosealicense.com/licenses/mit/");
-
         Info info = new Info()
                 .title("API de Notificaciones en Tiempo Real - Enterprise Edition")
                 .version("2.0.0")
                 .contact(contact)
                 .description("API REST empresarial para gestión de notificaciones en tiempo real con Spring Boot 3.2.5, WebSockets, Redis Pub/Sub, integración Twilio/SendGrid y monitoreo completo con Prometheus/Grafana")
-                .termsOfService("https://github.com/Biershoot/API_Notificaciones_Tiempo_Real")
-                .license(license);
+                .termsOfService("https://github.com/Biershoot/API_Notificaciones_Tiempo_Real");
 
         return new OpenAPI()
                 .info(info)
