@@ -1,119 +1,99 @@
 package com.alejandro.microservices.notifications.controller;
 
 import com.alejandro.microservices.notifications.metrics.NotificationMetrics;
-import com.alejandro.microservices.notifications.repository.NotificationRepository;
-import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.Gauge;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import com.alejandro.microservices.notifications.service.NotificationService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.actuate.endpoint.annotation.Endpoint;
-import org.springframework.boot.actuate.endpoint.annotation.ReadOperation;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.HashMap;
 
-@Component
-@Endpoint(id = "notifications-metrics")
 @RestController
 @RequestMapping("/api/metrics")
 @RequiredArgsConstructor
-@Tag(name = "Métricas", description = "Endpoints de métricas personalizadas para notificaciones")
 public class MetricsController {
 
-    private final MeterRegistry meterRegistry;
-    private final NotificationRepository notificationRepository;
+    private final NotificationMetrics notificationMetrics;
+    private final NotificationService notificationService;
 
-    @ReadOperation
-    @GetMapping("/notifications")
-    @Operation(
-        summary = "Obtener métricas completas de notificaciones",
-        description = "Devuelve un resumen completo de todas las métricas del sistema de notificaciones"
-    )
-    public ResponseEntity<Map<String, Object>> getNotificationMetrics() {
-        Map<String, Object> metrics = new HashMap<>();
+    /**
+     * 📊 Endpoint para obtener estadísticas en tiempo real
+     * Útil para dashboards personalizados o integración con otros sistemas
+     */
+    @GetMapping("/stats")
+    public ResponseEntity<Map<String, Object>> getStats() {
+        // Forzar actualización de métricas globales
+        notificationService.updateGlobalMetrics();
 
-        // Obtener métricas de contadores
-        metrics.put("total_sent", getCounterValue("notifications.sent"));
-        metrics.put("total_read", getCounterValue("notifications.read"));
-        metrics.put("total_unread_created", getCounterValue("notifications.unread.created"));
-        metrics.put("mark_all_read_operations", getCounterValue("notifications.mark_all_read"));
+        Map<String, Object> stats = new HashMap<>();
+        stats.put("timestamp", System.currentTimeMillis());
+        stats.put("metrics", notificationMetrics.getCurrentStats());
 
-        // Obtener métricas de gauges
-        metrics.put("active_notifications", getGaugeValue("notifications.active.total"));
-        metrics.put("unread_notifications", getGaugeValue("notifications.unread.total"));
+        return ResponseEntity.ok(stats);
+    }
 
-        // Métricas de base de datos en tiempo real
-        long totalInDB = notificationRepository.count();
-        long unreadInDB = notificationRepository.countUnreadByUsername("");
+    /**
+     * 📈 Endpoint para obtener estadísticas por usuario
+     */
+    @GetMapping("/stats/{username}")
+    public ResponseEntity<Map<String, Object>> getUserStats(@PathVariable String username) {
+        Map<String, Object> userStats = new HashMap<>();
 
-        metrics.put("database_total", totalInDB);
-        metrics.put("database_unread", unreadInDB);
-        metrics.put("database_read", totalInDB - unreadInDB);
+        long unreadCount = notificationService.countUnreadNotifications(username);
+        long totalCount = notificationService.getAllNotifications(username).size();
 
-        // Calcular porcentajes
-        if (totalInDB > 0) {
-            metrics.put("read_percentage", Math.round(((double)(totalInDB - unreadInDB) / totalInDB) * 100.0));
-            metrics.put("unread_percentage", Math.round(((double)unreadInDB / totalInDB) * 100.0));
-        } else {
-            metrics.put("read_percentage", 0);
-            metrics.put("unread_percentage", 0);
+        userStats.put("username", username);
+        userStats.put("totalNotifications", totalCount);
+        userStats.put("unreadNotifications", unreadCount);
+        userStats.put("readNotifications", totalCount - unreadCount);
+        userStats.put("timestamp", System.currentTimeMillis());
+
+        return ResponseEntity.ok(userStats);
+    }
+
+    /**
+     * 🔄 Endpoint para forzar sincronización de métricas
+     * Útil para debugging o mantenimiento
+     */
+    @PostMapping("/sync")
+    public ResponseEntity<Map<String, String>> syncMetrics() {
+        notificationService.updateGlobalMetrics();
+
+        Map<String, String> response = new HashMap<>();
+        response.put("status", "success");
+        response.put("message", "Métricas sincronizadas correctamente");
+        response.put("timestamp", String.valueOf(System.currentTimeMillis()));
+
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 🏥 Health check avanzado con métricas
+     */
+    @GetMapping("/health")
+    public ResponseEntity<Map<String, Object>> healthCheck() {
+        Map<String, Object> health = new HashMap<>();
+        Map<String, Object> stats = notificationMetrics.getCurrentStats();
+
+        // Determinar estado de salud basado en métricas
+        boolean isHealthy = true;
+        String status = "UP";
+
+        // Verificaciones de salud básicas
+        Long activeConnections = (Long) stats.get("activeWebsocketConnections");
+        Long unreadNotifications = (Long) stats.get("totalUnreadNotifications");
+
+        if (activeConnections == null || activeConnections < 0) {
+            isHealthy = false;
+            status = "DOWN";
         }
 
-        // Metadata
-        metrics.put("timestamp", System.currentTimeMillis());
-        metrics.put("status", "active");
+        health.put("status", status);
+        health.put("isHealthy", isHealthy);
+        health.put("metrics", stats);
+        health.put("timestamp", System.currentTimeMillis());
 
-        return ResponseEntity.ok(metrics);
-    }
-
-    @GetMapping("/notifications/summary")
-    @Operation(
-        summary = "Resumen ejecutivo de métricas",
-        description = "Devuelve un resumen ejecutivo de las métricas más importantes"
-    )
-    public ResponseEntity<Map<String, Object>> getMetricsSummary() {
-        Map<String, Object> summary = new HashMap<>();
-
-        long totalSent = (long) getCounterValue("notifications.sent");
-        long totalRead = (long) getCounterValue("notifications.read");
-        long activeNotifications = (long) getGaugeValue("notifications.active.total");
-        long unreadNotifications = (long) getGaugeValue("notifications.unread.total");
-
-        summary.put("performance", Map.of(
-            "total_notifications_sent", totalSent,
-            "total_notifications_read", totalRead,
-            "read_rate_percentage", totalSent > 0 ? Math.round(((double)totalRead / totalSent) * 100.0) : 0
-        ));
-
-        summary.put("current_state", Map.of(
-            "active_notifications", activeNotifications,
-            "unread_notifications", unreadNotifications,
-            "read_notifications", activeNotifications - unreadNotifications
-        ));
-
-        summary.put("health_indicators", Map.of(
-            "system_active", activeNotifications >= 0,
-            "notifications_flowing", totalSent > 0,
-            "users_engaging", totalRead > 0
-        ));
-
-        return ResponseEntity.ok(summary);
-    }
-
-    private double getCounterValue(String meterName) {
-        Counter counter = meterRegistry.find(meterName).counter();
-        return counter != null ? counter.count() : 0.0;
-    }
-
-    private double getGaugeValue(String meterName) {
-        Gauge gauge = meterRegistry.find(meterName).gauge();
-        return gauge != null ? gauge.value() : 0.0;
+        return ResponseEntity.ok(health);
     }
 }

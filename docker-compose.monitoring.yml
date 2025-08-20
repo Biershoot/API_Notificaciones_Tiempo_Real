@@ -1,0 +1,131 @@
+version: '3.9'
+
+services:
+  # Aplicación principal de notificaciones
+  notifications-api:
+    build: .
+    container_name: notifications-api
+    ports:
+      - "8080:8080"
+      - "8081:8081"  # Puerto para métricas
+    depends_on:
+      - redis
+      - mysql
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/notifications_db
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_PROFILES_ACTIVE: mysql
+    networks:
+      - monitoring-network
+    restart: unless-stopped
+
+  # Redis para Pub/Sub
+  redis:
+    image: redis:7.2
+    container_name: notifications-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - monitoring-network
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: notifications-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: notifications_db
+      MYSQL_USER: notifications_user
+      MYSQL_PASSWORD: notifications_pass
+    ports:
+      - "3306:3306"
+    networks:
+      - monitoring-network
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  # Prometheus para métricas
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+      - '--storage.tsdb.retention.time=30d'
+    networks:
+      - monitoring-network
+    restart: unless-stopped
+
+  # Grafana para visualización
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+    networks:
+      - monitoring-network
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+
+  # Redis Exporter para métricas de Redis
+  redis-exporter:
+    image: oliver006/redis_exporter:latest
+    container_name: redis-exporter
+    ports:
+      - "9121:9121"
+    environment:
+      REDIS_ADDR: "redis://redis:6379"
+    networks:
+      - monitoring-network
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  # MySQL Exporter para métricas de MySQL
+  mysql-exporter:
+    image: prom/mysqld-exporter:latest
+    container_name: mysql-exporter
+    ports:
+      - "9104:9104"
+    environment:
+      DATA_SOURCE_NAME: "root:root@(mysql:3306)/"
+    networks:
+      - monitoring-network
+    depends_on:
+      - mysql
+    restart: unless-stopped
+
+networks:
+  monitoring-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
+  redis-data:
+  prometheus-data:
+  grafana-data:

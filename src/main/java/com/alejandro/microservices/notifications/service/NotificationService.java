@@ -29,83 +29,149 @@ public class NotificationService {
 
     // 📩 Enviar una notificación con Redis Pub/Sub distribuido (opcional)
     public Notification sendNotification(String username, String message) {
-        User recipient = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        // Iniciar timer para medir latencia
+        var sendTimer = metrics.startNotificationSendTimer();
 
-        Notification notification = Notification.builder()
-                .username(username)
-                .message(message)
-                .recipient(recipient)
-                .timestamp(LocalDateTime.now())
-                .read(false)
-                .build();
+        try {
+            User recipient = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        Notification saved = notificationRepository.save(notification);
+            Notification notification = Notification.builder()
+                    .username(username)
+                    .message(message)
+                    .recipient(recipient)
+                    .timestamp(LocalDateTime.now())
+                    .read(false)
+                    .build();
 
-        // 🔥 Contabilizar en métricas
-        metrics.incrementSentNotifications();
+            // Medir tiempo de operación en base de datos
+            var dbTimer = metrics.startDatabaseQueryTimer();
+            Notification saved = notificationRepository.save(notification);
+            metrics.recordDatabaseQueryTime(dbTimer);
 
-        // 🚀 Si Redis está disponible, publicar. Si no, usar WebSocket directo
-        if (redisPublisher != null) {
-            redisPublisher.publish(saved);
-        } else {
-            // Fallback: envío directo por WebSocket
-            messagingTemplate.convertAndSend("/topic/notifications/" + username, saved);
+            // 🔥 Contabilizar en métricas avanzadas
+            metrics.incrementNotificationsSent(username);
+            metrics.incrementUnreadNotifications();
+
+            // Registrar tamaño del mensaje
+            metrics.recordNotificationMessageSize(message.getBytes().length);
+
+            // 🚀 Si Redis está disponible, publicar. Si no, usar WebSocket directo
+            if (redisPublisher != null) {
+                var redisTimer = metrics.startRedisOperationTimer();
+                redisPublisher.publish(saved);
+                metrics.recordRedisOperationTime(redisTimer);
+                metrics.incrementRedisPublishEvents();
+            } else {
+                // Fallback: envío directo por WebSocket
+                var wsTimer = metrics.startWebsocketBroadcastTimer();
+                messagingTemplate.convertAndSend("/topic/notifications/" + username, saved);
+                metrics.recordWebsocketBroadcastTime(wsTimer);
+            }
+
+            return saved;
+
+        } catch (Exception e) {
+            metrics.incrementFailedNotifications();
+            throw e;
+        } finally {
+            metrics.recordNotificationSendTime(sendTimer);
         }
-
-        return saved;
     }
 
     // 📋 Listar todas las notificaciones de un usuario (ordenadas por timestamp)
     public List<Notification> getAllNotifications(String username) {
-        return notificationRepository.findByUsernameOrderByTimestampDesc(username);
+        var dbTimer = metrics.startDatabaseQueryTimer();
+        try {
+            return notificationRepository.findByUsernameOrderByTimestampDesc(username);
+        } finally {
+            metrics.recordDatabaseQueryTime(dbTimer);
+        }
     }
 
     // 📬 Listar solo notificaciones no leídas (ordenadas por timestamp)
     public List<Notification> getUnreadNotifications(String username) {
-        return notificationRepository.findByUsernameAndReadFalseOrderByTimestampDesc(username);
+        var dbTimer = metrics.startDatabaseQueryTimer();
+        try {
+            return notificationRepository.findByUsernameAndReadFalseOrderByTimestampDesc(username);
+        } finally {
+            metrics.recordDatabaseQueryTime(dbTimer);
+        }
     }
 
     // ✅ Marcar una notificación específica como leída
     @Transactional
     public Notification markAsRead(Long notificationId) {
-        Notification notification = notificationRepository.findById(notificationId)
-                .orElseThrow(() -> new RuntimeException("Notificación no encontrada"));
+        var dbTimer = metrics.startDatabaseQueryTimer();
 
-        if (!notification.isRead()) {
-            notificationRepository.markAsReadById(notificationId);
-            notification.setRead(true);
+        try {
+            Notification notification = notificationRepository.findById(notificationId)
+                    .orElseThrow(() -> new RuntimeException("Notificación no encontrada"));
 
-            // 🔥 Contabilizar en métricas solo si cambió de estado
-            metrics.incrementReadNotifications();
+            if (!notification.isRead()) {
+                notificationRepository.markAsReadById(notificationId);
+                notification.setRead(true);
+
+                // 🔥 Contabilizar en métricas solo si cambió de estado
+                metrics.incrementNotificationsRead();
+            }
+
+            return notification;
+        } finally {
+            metrics.recordDatabaseQueryTime(dbTimer);
         }
-
-        return notification;
     }
 
     // ✅ Marcar todas las notificaciones como leídas
     @Transactional
     public void markAllAsRead(String username) {
-        // Contar cuántas se van a marcar para métricas
-        long unreadCount = notificationRepository.countUnreadByUsername(username);
+        var dbTimer = metrics.startDatabaseQueryTimer();
 
-        notificationRepository.markAllAsRead(username);
+        try {
+            // Contar cuántas se van a marcar para métricas
+            long unreadCount = notificationRepository.countUnreadByUsername(username);
 
-        // 🔥 Contabilizar en métricas
-        if (unreadCount > 0) {
-            metrics.incrementMarkAllReadOperations(unreadCount);
+            if (unreadCount > 0) {
+                notificationRepository.markAllAsRead(username);
+                // 🔥 Contabilizar en métricas
+                metrics.markAllAsRead(username, (int) unreadCount);
+            }
+        } finally {
+            metrics.recordDatabaseQueryTime(dbTimer);
         }
     }
 
     // 📊 Contar notificaciones no leídas (con actualización de métricas)
     public long countUnreadNotifications(String username) {
-        long count = notificationRepository.countUnreadByUsername(username);
+        var dbTimer = metrics.startDatabaseQueryTimer();
 
-        // Sincronizar métricas con estado real de BD
-        long totalUnread = notificationRepository.countUnreadByUsername("");
-        metrics.updateUnreadNotificationsCount(totalUnread);
+        try {
+            long count = notificationRepository.countUnreadByUsername(username);
 
-        return count;
+            // Actualizar métricas globales
+            updateGlobalMetrics();
+
+            return count;
+        } finally {
+            metrics.recordDatabaseQueryTime(dbTimer);
+        }
+    }
+
+    // 📊 Método para actualizar métricas globales periódicamente
+    public void updateGlobalMetrics() {
+        var dbTimer = metrics.startDatabaseQueryTimer();
+
+        try {
+            long totalNotifications = notificationRepository.count();
+            long totalUnread = notificationRepository.countByReadFalse();
+            long totalUsers = userRepository.count();
+
+            metrics.setTotalActiveNotifications(totalNotifications);
+            metrics.setTotalUnreadNotifications(totalUnread);
+            metrics.setTotalUsers(totalUsers);
+        } finally {
+            metrics.recordDatabaseQueryTime(dbTimer);
+        }
     }
 
     // Métodos existentes para compatibilidad con User
