@@ -9,43 +9,43 @@
 
 ## 📋 Resumen Ejecutivo
 
-**API de Notificaciones en Tiempo Real** es una solución empresarial completa desarrollada con **Java 21** y **Spring Boot 3.2.5** que proporciona un sistema robusto de notificaciones con capacidades de tiempo real, escalabilidad y monitoreo avanzado.
+**API de Notificaciones en Tiempo Real** es una **API REST empresarial** desarrollada con **Java 21** y **Spring Boot 3.2.5** que resuelve el problema crítico de **comunicación en tiempo real** entre aplicaciones y usuarios. Esta API proporciona un **sistema centralizado de notificaciones** que permite a cualquier aplicación enviar notificaciones instantáneas por múltiples canales (APP, EMAIL, SMS) con escalabilidad, seguridad y observabilidad empresarial.
 
 ## 🎯 **Problemática que Resuelve**
 
 ### **🚨 Desafíos Empresariales Actuales**
 
 #### **1. Fragmentación de Canales de Notificación**
-- **Problema**: Las empresas necesitan enviar notificaciones por múltiples canales (app, email, SMS) pero cada uno requiere integraciones separadas
-- **Solución**: Sistema unificado que maneja **APP, EMAIL, SMS** y **múltiples canales simultáneamente**
+- **Problema**: Las aplicaciones necesitan enviar notificaciones por múltiples canales (app, email, SMS) pero cada uno requiere integraciones separadas y APIs diferentes
+- **Solución**: **API unificada** que maneja **APP, EMAIL, SMS** y **múltiples canales simultáneamente** con una sola integración
 
 #### **2. Falta de Tiempo Real**
-- **Problema**: Los usuarios esperan notificaciones instantáneas, pero los sistemas tradicionales tienen latencia alta
-- **Solución**: **WebSockets** para notificaciones en tiempo real con latencia <100ms
+- **Problema**: Los usuarios esperan notificaciones instantáneas, pero las APIs tradicionales tienen latencia alta y requieren polling
+- **Solución**: **API con WebSockets** para notificaciones en tiempo real con latencia <100ms y push automático
 
 #### **3. Escalabilidad Limitada**
-- **Problema**: Los sistemas de notificación tradicionales no escalan bien con el crecimiento del usuario
-- **Solución**: **Arquitectura distribuida** con Redis Pub/Sub que soporta miles de conexiones concurrentes
+- **Problema**: Las APIs de notificación tradicionales no escalan bien con el crecimiento de usuarios y aplicaciones
+- **Solución**: **API con arquitectura distribuida** con Redis Pub/Sub que soporta miles de conexiones concurrentes y múltiples instancias
 
 #### **4. Falta de Observabilidad**
-- **Problema**: Es difícil monitorear el rendimiento y detectar problemas en sistemas de notificación
-- **Solución**: **Métricas completas** con Prometheus, Grafana y logs de auditoría detallados
+- **Problema**: Es difícil monitorear el rendimiento y detectar problemas en APIs de notificación
+- **Solución**: **API con métricas completas** con Prometheus, Grafana y logs de auditoría detallados para monitoreo en tiempo real
 
 #### **5. Seguridad Insuficiente**
-- **Problema**: Los sistemas de notificación son vulnerables a ataques y no tienen control de acceso granular
-- **Solución**: **Autenticación robusta** con Spring Security, validaciones exhaustivas y análisis OWASP
+- **Problema**: Las APIs de notificación son vulnerables a ataques y no tienen control de acceso granular
+- **Solución**: **API con autenticación robusta** con Spring Security, validaciones exhaustivas y análisis OWASP integrado
 
 #### **6. Integración Compleja**
-- **Problema**: Integrar servicios externos (Twilio, SendGrid) requiere mucho código boilerplate
-- **Solución**: **Integraciones nativas** con validaciones inteligentes y manejo de errores automático
+- **Problema**: Integrar servicios externos (Twilio, SendGrid) en aplicaciones requiere mucho código boilerplate y manejo de errores
+- **Solución**: **API con integraciones nativas** que abstrae la complejidad con validaciones inteligentes y manejo de errores automático
 
 #### **7. Falta de Reportes y Analytics**
-- **Problema**: No hay visibilidad sobre el rendimiento de las notificaciones y engagement de usuarios
-- **Solución**: **Reportes automáticos** PDF/Excel y métricas detalladas de engagement
+- **Problema**: No hay visibilidad sobre el rendimiento de las notificaciones y engagement de usuarios en las aplicaciones
+- **Solución**: **API con reportes automáticos** PDF/Excel y métricas detalladas de engagement para análisis de negocio
 
 #### **8. Operaciones Manuales**
-- **Problema**: Limpieza de datos antiguos, generación de reportes y monitoreo requieren intervención manual
-- **Solución**: **Automatización completa** con tareas programadas, CI/CD y contenerización
+- **Problema**: Limpieza de datos antiguos, generación de reportes y monitoreo de APIs requieren intervención manual
+- **Solución**: **API con automatización completa** con tareas programadas, CI/CD y contenerización para operaciones sin intervención
 
 ### **💼 Casos de Uso Empresariales**
 
@@ -79,12 +79,13 @@
 - **Reportes de producción** automáticos
 - **Comunicaciones de seguridad** industrial
 
-### **🎯 Valor Empresarial**
-- **Escalabilidad**: Arquitectura distribuida con Redis Pub/Sub
-- **Tiempo Real**: WebSockets para notificaciones instantáneas
-- **Observabilidad**: Métricas completas con Prometheus y Grafana
-- **Seguridad**: Autenticación y autorización robustas
-- **DevOps**: CI/CD automatizado y contenerización completa
+### **🎯 Valor Empresarial de la API**
+- **API Unificada**: Una sola integración para múltiples canales de notificación
+- **Escalabilidad**: Arquitectura distribuida con Redis Pub/Sub para alta disponibilidad
+- **Tiempo Real**: WebSockets para notificaciones instantáneas sin polling
+- **Observabilidad**: Métricas completas con Prometheus y Grafana para monitoreo proactivo
+- **Seguridad**: Autenticación y autorización robustas con análisis OWASP integrado
+- **DevOps**: CI/CD automatizado y contenerización completa para despliegues rápidos
 
 ### **📊 Métricas de Calidad**
 - **Cobertura de Código**: >90% con JaCoCo
@@ -93,9 +94,9 @@
 - **Pruebas Automatizadas**: Unitarias e integración
 - **Documentación**: Swagger/OpenAPI completa
 
-## 🚀 Características Enterprise
+## 🚀 Características Enterprise de la API
 
-### 📡 Sistema de Notificaciones Completo
+### 📡 API de Notificaciones Completa
 - ✅ **API REST** completa con Swagger UI y validación Bean Validation
 - ✅ **WebSockets** para notificaciones en tiempo real con STOMP
 - ✅ **Redis Pub/Sub** para arquitectura distribuida y escalable
@@ -131,7 +132,7 @@
 - ✅ **Migraciones de BD** automáticas con Flyway
 - ✅ **Análisis estático** con SpotBugs y configuración personalizada
 
-### 📱 Notificaciones Externas
+### 📱 API de Notificaciones Externas
 - ✅ **Integración Twilio** para envío de SMS
 - ✅ **Integración SendGrid** para envío de emails
 - ✅ **Despacho multi-canal** (APP, EMAIL, SMS, ALL)
@@ -501,7 +502,7 @@ SENDGRID_API_KEY=tu_api_key
 SENDGRID_FROM_EMAIL=tu_correo@empresa.com
 ```
 
-## 🏗️ Arquitectura del Sistema
+## 🏗️ Arquitectura de la API
 
 ### **Diagrama de Componentes**
 ```
@@ -529,14 +530,14 @@ SENDGRID_FROM_EMAIL=tu_correo@empresa.com
 └───────────────────┘  └───────────────────┘  └───────────────────┘
 ```
 
-### **Flujo de Notificaciones**
-1. **Recepción**: API recibe solicitud de notificación
-2. **Validación**: Bean Validation valida los datos de entrada
-3. **Persistencia**: Se guarda en base de datos con JPA
-4. **Publicación**: Se publica en Redis Pub/Sub
-5. **Distribución**: WebSocket envía a todos los clientes conectados
-6. **Logging**: Se registra en logs de auditoría
-7. **Métricas**: Se actualizan métricas con Micrometer
+### **Flujo de la API de Notificaciones**
+1. **Recepción**: API recibe solicitud de notificación desde cualquier aplicación
+2. **Validación**: Bean Validation valida los datos de entrada según el canal
+3. **Persistencia**: Se guarda en base de datos con JPA para trazabilidad
+4. **Publicación**: Se publica en Redis Pub/Sub para distribución
+5. **Distribución**: WebSocket envía a todos los clientes conectados en tiempo real
+6. **Logging**: Se registra en logs de auditoría para compliance
+7. **Métricas**: Se actualizan métricas con Micrometer para monitoreo
 
 ### **Patrones de Diseño Implementados**
 - **Repository Pattern**: Abstracción de acceso a datos
