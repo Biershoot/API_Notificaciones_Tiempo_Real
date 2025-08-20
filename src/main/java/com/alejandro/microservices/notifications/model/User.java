@@ -2,15 +2,13 @@ package com.alejandro.microservices.notifications.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
-import lombok.*;
 
+/**
+ * Entidad que representa un usuario del sistema.
+ * Contiene información básica de autenticación y autorización.
+ */
 @Entity
 @Table(name = "users")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 @Schema(description = "Entidad que representa un usuario del sistema")
 public class User {
 
@@ -29,4 +27,58 @@ public class User {
 
     @Schema(description = "Rol del usuario en el sistema", example = "USER", allowableValues = {"USER", "ADMIN"})
     private String role; // Ejemplo: USER, ADMIN
+
+    /**
+     * Constructor por defecto requerido por JPA.
+     */
+    public User() {
+    }
+
+    /**
+     * Constructor con todos los campos.
+     *
+     * @param id ID del usuario
+     * @param username Nombre de usuario
+     * @param password Contraseña
+     * @param role Rol del usuario
+     */
+    public User(Long id, String username, String password, String role) {
+        this.id = id;
+        this.username = username;
+        this.password = password;
+        this.role = role;
+    }
+
+    // Getters y setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
 }

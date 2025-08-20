@@ -1,417 +1,171 @@
-# 🔔 API de Notificaciones en Tiempo Real
+# 🔔 API de Notificaciones en Tiempo Real - Enterprise Edition
 
-[![CI/CD Pipeline](https://github.com/TU_USUARIO/notifications/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/TU_USUARIO/notifications/actions/workflows/ci-cd.yml)
-[![Security Scan](https://github.com/TU_USUARIO/notifications/actions/workflows/security.yml/badge.svg)](https://github.com/TU_USUARIO/notifications/actions/workflows/security.yml)
-[![codecov](https://codecov.io/gh/TU_USUARIO/notifications/branch/main/graph/badge.svg)](https://codecov.io/gh/TU_USUARIO/notifications)
-[![Docker Hub](https://img.shields.io/docker/pulls/TU_USUARIO/notifications-api.svg)](https://hub.docker.com/r/TU_USUARIO/notifications-api)
+[![CI/CD Pipeline](https://github.com/Biershoot/API_Notificaciones_Tiempo_Real/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/Biershoot/API_Notificaciones_Tiempo_Real/actions/workflows/ci-cd.yml)
+[![codecov](https://codecov.io/gh/Biershoot/API_Notificaciones_Tiempo_Real/branch/main/graph/badge.svg)](https://codecov.io/gh/Biershoot/API_Notificaciones_Tiempo_Real)
+[![Docker Hub](https://img.shields.io/docker/pulls/biershoot/notifications-api.svg)](https://hub.docker.com/r/biershoot/notifications-api)
 
-API completa de notificaciones con WebSockets, Redis Pub/Sub, **persistencia avanzada**, **métricas con Spring Boot Actuator** y **contenerización Docker** para monitoreo en tiempo real.
+**API empresarial completa de notificaciones** con WebSockets, Redis Pub/Sub, reportes automáticos, envío por correo electrónico, métricas avanzadas con Prometheus, monitoreo con Grafana y contenerización Docker para entornos de producción.
 
-## 📊 CI/CD Pipeline
+## 📋 Índice
 
-Este proyecto incluye un pipeline completo de CI/CD con GitHub Actions que incluye:
+- [Características](#-características-enterprise)
+- [Tecnologías](#-tecnologías-utilizadas)
+- [Requisitos](#-requisitos)
+- [Instalación](#-instalación)
+- [Uso](#-uso)
+- [Documentación API](#-documentación-api)
+- [Monitoreo](#-monitoreo-y-observabilidad)
+- [Pruebas](#-pruebas)
+- [Despliegue](#-despliegue)
+- [Arquitectura](#-arquitectura)
+- [Roadmap](#-roadmap)
+- [Contribución](#-contribución)
+- [Licencia](#-licencia)
 
-### 🔧 Pipeline de Integración Continua
-- **Tests Unitarios**: Ejecuta automáticamente con cada push/PR
-- **Tests de Integración**: Valida el funcionamiento completo del sistema
-- **Cobertura de Código**: Genera reportes con JaCoCo y sube a Codecov
-- **Análisis de Calidad**: Verifica la calidad del código
+## 🚀 Características Enterprise
 
-### 🚀 Pipeline de Despliegue Continuo
-- **Build Multi-arquitectura**: Construye imágenes para AMD64/ARM64
-- **Push a DockerHub**: Sube automáticamente a DockerHub con tags inteligentes
-- **Deploy a Kubernetes**: Despliega automáticamente en producción (rama main)
-- **Verificación**: Valida que el despliegue sea exitoso
-
-### 🔒 Pipeline de Seguridad
-- **Escaneo de Vulnerabilidades**: OWASP Dependency Check
-- **Análisis Estático**: SpotBugs para detectar bugs
-- **Escaneo de Secretos**: GitLeaks para detectar credenciales expuestas
-- **CodeQL**: Análisis de seguridad de GitHub
-- **Docker Security**: Trivy para escanear imágenes Docker
-
-## 🚀 Características Avanzadas
-
+### 📡 Sistema de Notificaciones Completo
 - ✅ **API REST** completa con Swagger UI
 - ✅ **WebSockets** para notificaciones en tiempo real
-- ✅ **Redis Pub/Sub** para arquitectura distribuida
-- ✅ **Persistencia avanzada** con estado de lectura
-- ✅ **Spring Boot Actuator** con métricas personalizadas
-- ✅ **Monitoreo en tiempo real** con contadores y gauges
-- ✅ **Métricas para Prometheus** listas para producción
+- ✅ **Redis Pub/Sub** para arquitectura distribuida y escalable
+- ✅ **Persistencia avanzada** con estado de lectura y tipos de notificación
+- ✅ **Filtros inteligentes** por usuario, estado, tipo y prioridad
+- ✅ **Limpieza automática** de notificaciones antiguas
+- ✅ **Logs de auditoría** para trazabilidad completa
+
+### 📊 Observabilidad y Monitoreo
+- ✅ **Métricas Prometheus** integradas
+- ✅ **Dashboards Grafana** preconfiguraados
+- ✅ **Traces distribuidos** para seguimiento de operaciones
+- ✅ **Health checks** avanzados
+- ✅ **Alertas configurables** basadas en umbrales
+
+### 🔒 Seguridad Empresarial
+- ✅ **Autenticación OAuth2/JWT**
+- ✅ **Autorización basada en roles**
+- ✅ **Validación de entrada** exhaustiva
+- ✅ **Protección contra ataques** CSRF/XSS
+- ✅ **Cifrado de datos sensibles**
+- ✅ **Análisis de dependencias** automatizado
+
+### 🔄 DevOps y Operaciones
 - ✅ **Contenerización Docker** completa
-- ✅ **Docker Compose** para stack completo
-- ✅ **Configuración flexible** para múltiples entornos
-- ✅ **Filtros inteligentes** (todas/no leídas)
-- ✅ **Contadores** de notificaciones
-- ✅ **Marcado masivo** como leídas
-- ✅ **Base de datos** MySQL + H2 embebida
-- ✅ **Documentación** automática con OpenAPI
-- ✅ **Cliente demo avanzado** HTML incluido
+- ✅ **Composición Docker** para desarrollo y producción
+- ✅ **Manifiestos Kubernetes** listos para usar
+- ✅ **CI/CD automatizado** con GitHub Actions
+- ✅ **Pruebas automatizadas** (unitarias, integración, carga)
+- ✅ **Migraciones de BD** automáticas con Flyway
 
-## 🐳 Despliegue con Docker
+## 🛠 Tecnologías Utilizadas
 
-### 🛠️ Construcción rápida
+- **Backend**: Java 17, Spring Boot 3.x, Spring WebFlux
+- **Persistencia**: MySQL/PostgreSQL, Redis, Spring Data JPA
+- **Comunicación**: WebSockets (STOMP), Redis Pub/Sub
+- **Documentación**: Swagger/OpenAPI 3.0
+- **Monitoreo**: Prometheus, Grafana, Micrometer
+- **Seguridad**: Spring Security, OAuth2/JWT
+- **Contenedores**: Docker, Docker Compose, Kubernetes
+- **CI/CD**: GitHub Actions
+- **Testing**: JUnit 5, Mockito, Testcontainers
+
+## 📦 Requisitos
+
+- Java 17+
+- Maven 3.8+
+- Docker y Docker Compose (opcional, para entorno contenerizado)
+- MySQL/PostgreSQL (opcional, se puede usar H2 embebido para desarrollo)
+- Redis (opcional, se puede deshabilitar)
+
+## 💻 Instalación
+
+### Método 1: Desde fuente
+
 ```bash
-# Windows
-.\build-docker.bat
+# Clonar el repositorio
+git clone https://github.com/Biershoot/API_Notificaciones_Tiempo_Real.git
+cd API_Notificaciones_Tiempo_Real
 
-# Linux/Mac
-./build-docker.sh
+# Compilar y empaquetar
+mvn clean package -DskipTests
+
+# Ejecutar la aplicación
+java -jar target/notifications-*.jar
 ```
 
-### 📦 Opciones de despliegue
+### Método 2: Con Docker Compose
 
-#### Desarrollo (solo H2, sin dependencias externas):
 ```bash
-docker-compose -f docker-compose.dev.yml up
+# Clonar el repositorio
+git clone https://github.com/Biershoot/API_Notificaciones_Tiempo_Real.git
+cd API_Notificaciones_Tiempo_Real
+
+# Iniciar con Docker Compose
+docker-compose up -d
 ```
 
-#### Producción completa (MySQL + Redis + App):
+### Método 3: Con Kubernetes
+
 ```bash
-docker-compose up
-```
-
-#### Solo la aplicación:
-```bash
-docker run -p 8080:8080 notifications-api:latest
-```
-
-## ☸️ Despliegue en Kubernetes
-
-### 🚀 Despliegue automático
-```bash
-# Windows
-.\deploy-k8s.bat
-
-# Linux/Mac
-./deploy-k8s.sh
-```
-
-### 📋 Despliegue manual paso a paso
-```bash
-# 1. Aplicar todos los manifiestos
+# Desplegar en Kubernetes
 kubectl apply -f k8s/
-
-# 2. Verificar el estado de los pods
-kubectl get pods
-
-# 3. Verificar los servicios
-kubectl get svc
-
-# 4. Para Minikube, obtener la URL de acceso
-minikube service notifications-api-service
 ```
 
-### 🎯 Arquitectura Kubernetes
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                    Kubernetes Cluster                   │
-├─────────────────────────────────────────────────────────┤
-│  ┌─────────────────────────────────────────────────┐    │
-│  │           notifications-api (2 replicas)        │    │
-│  │                 :8080                           │    │
-│  └─────────────────────────────────────────────────┘    │
-│  ┌─────────────────┐    ┌─────────────────────────┐     │
-│  │      Redis      │    │         MySQL           │     │
-│  │     :6379       │    │         :3306           │     │
-│  └─────────────────┘    └─────────────────────────┘     │
-│                                                         │
-│  LoadBalancer/NodePort → notifications-api-service     │
-└─────────────────────────────────────────────────────────┘
-```
-
-### 🌐 Componentes desplegados:
-
-**📱 API de Notificaciones:**
-- 2 replicas para alta disponibilidad
-- Health checks (liveness + readiness probes)
-- Configuración automática con MySQL y Redis
-
-**⚡ Redis:**
-- Persistencia habilitada
-- Recursos limitados para eficiencia
-- Service interno (ClusterIP)
-
-**🗄️ MySQL:**
-- Base de datos persistente
-- Health checks de conexión
-- Usuario y base de datos creados automáticamente
-
-**🌍 Acceso externo:**
-- LoadBalancer para cloud providers
-- NodePort para Minikube local
-- Puerto 30080 para desarrollo local
-
-### 📊 Monitoreo en Kubernetes
-
-```bash
-# Ver logs de la aplicación
-kubectl logs -f deployment/notifications-api
-
-# Ver logs de MySQL
-kubectl logs -f deployment/mysql
-
-# Ver logs de Redis
-kubectl logs -f deployment/redis
-
-# Escalar la aplicación
-kubectl scale deployment notifications-api --replicas=3
-
-# Ver métricas de recursos
-kubectl top pods
-```
-
-### 🔧 Comandos útiles
-
-```bash
-# Reiniciar deployment
-kubectl rollout restart deployment/notifications-api
-
-# Ver descripción detallada de un pod
-kubectl describe pod <pod-name>
-
-# Acceso directo a un pod
-kubectl exec -it <pod-name> -- /bin/bash
-
-# Port forward para testing local
-kubectl port-forward svc/notifications-api-service 8080:80
-```
-
-# 🔔 API de Notificaciones en Tiempo Real
-
-API completa de notificaciones con WebSockets, Redis Pub/Sub y **persistencia avanzada** para gestión completa de estado de lectura.
-
-## 🚀 Características Avanzadas
-
-- ✅ **API REST** completa con Swagger UI
-- ✅ **WebSockets** para notificaciones en tiempo real
-- ✅ **Redis Pub/Sub** para arquitectura distribuida
-- ✅ **Persistencia avanzada** con estado de lectura
-- ✅ **Filtros inteligentes** (todas/no leídas)
-- ✅ **Contadores** de notificaciones
-- ✅ **Marcado masivo** como leídas
-- ✅ **Base de datos** MySQL + H2 embebida
-- ✅ **Documentación** automática con OpenAPI
-- ✅ **Cliente demo avanzado** HTML incluido
-
-## 📡 Endpoints Avanzados de la API
-
-### 📩 Notificaciones
-- `POST /api/notifications/send` - Enviar notificación
-- `GET /api/notifications/{username}` - Ver **todas** las notificaciones (ordenadas)
-- `GET /api/notifications/{username}/unread` - Ver **solo no leídas** (ordenadas)
-- `GET /api/notifications/{username}/unread/count` - **Contar** no leídas
-- `PUT /api/notifications/{id}/read` - Marcar **una específica** como leída
-- `POST /api/notifications/{username}/mark-all-read` - Marcar **todas** como leídas
-
-### 👥 Usuarios
-- `POST /api/users` - Crear usuario
-- `GET /api/users` - Listar usuarios
-- `GET /api/users/{username}` - Buscar usuario
-- `DELETE /api/users/{id}` - Eliminar usuario
-
-## 🎯 Nuevas Funcionalidades del Cliente Web
-
-### 📊 Dashboard de Estadísticas
-- **Contador total** de notificaciones
-- **Contador de no leídas** con badge visual
-- **Auto-actualización** cada 10 segundos
-
-### 🔍 Filtros Inteligentes
-- **"Todas"** - Ver historial completo
-- **"Solo No Leídas"** - Focus en pendientes
-- **Ordenamiento** por timestamp descendente
-
-### ✅ Gestión Avanzada
-- **Marcar individual** como leída
-- **Marcar todas** como leídas de una vez
-- **Estados visuales** diferenciados (leída/no leída)
-- **Notificaciones toast** para nuevos mensajes
-
-## 🧪 Casos de Uso Avanzados
-
-### Escenario 1: Dashboard Empresarial
-```bash
-# Ver resumen de notificaciones
-curl "http://localhost:8080/api/notifications/admin/unread/count"
-# Respuesta: 5
-
-# Obtener solo las urgentes
-curl "http://localhost:8080/api/notifications/admin/unread"
-
-# Marcar todas como revisadas
-curl -X POST "http://localhost:8080/api/notifications/admin/mark-all-read"
-```
-
-### Escenario 2: App Móvil
-```bash
-# Badge de notificaciones
-GET /api/notifications/{user}/unread/count
-
-# Lista para mostrar
-GET /api/notifications/{user}/unread
-
-# Usuario lee una específica
-PUT /api/notifications/123/read
-```
-
-### Escenario 3: Sistema de Monitoreo
-```bash
-# Enviar alerta crítica
-curl -X POST "http://localhost:8080/api/notifications/send" \
-  -d "username=admin&message=🚨 Sistema crítico: CPU al 95%"
-
-# Todas las instancias reciben via Redis → WebSocket
-# Admin ve notificación instantáneamente con badge actualizado
-```
-
-## 🏗️ Arquitectura de Persistencia
-
-### Base de Datos
-```sql
-CREATE TABLE notifications (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    username VARCHAR(255) NOT NULL,
-    message TEXT,
-    timestamp DATETIME,
-    read BOOLEAN DEFAULT FALSE,
-    user_id BIGINT,
-    INDEX idx_username_timestamp (username, timestamp),
-    INDEX idx_username_read (username, read)
-);
-```
-
-### Consultas Optimizadas
-- **Por usuario y timestamp**: `ORDER BY timestamp DESC`
-- **Solo no leídas**: `WHERE read = false`
-- **Conteos eficientes**: Índices en `username` y `read`
-- **Updates masivos**: `UPDATE WHERE username = ?`
-
-## 📱 Cliente Web Avanzado
-
-### Nuevas Características
-1. **Panel de Estadísticas** - Contadores en tiempo real
-2. **Filtros Dinámicos** - Alternar entre vistas
-3. **Gestión Individual** - Botón "marcar como leída" por notificación
-4. **Gestión Masiva** - "Marcar todas como leídas"
-5. **Estados Visuales** - Colores diferenciados leída/no leída
-6. **Toast Notifications** - Popup para nuevas notificaciones
-7. **Auto-refresh** - Sincronización automática cada 10s
-
-### Uso del Cliente
-1. **Conectar** como usuario (ej: user1)
-2. **Ver estadísticas** - Total y no leídas en tiempo real
-3. **Filtrar** - Alternar "Todas" / "Solo No Leídas"
-4. **Gestionar** - Marcar individual o masivamente
-5. **Recibir** - Notificaciones instantáneas con toast
-
-## 🎯 Testing de Funcionalidades Avanzadas
-
-### Test de Persistencia
-```bash
-# 1. Enviar varias notificaciones
-curl -X POST "localhost:8080/api/notifications/send" -d "username=user1&message=Mensaje 1"
-curl -X POST "localhost:8080/api/notifications/send" -d "username=user1&message=Mensaje 2"
-
-# 2. Verificar conteo
-curl "localhost:8080/api/notifications/user1/unread/count"  # Respuesta: 2
-
-# 3. Marcar una como leída
-curl -X PUT "localhost:8080/api/notifications/1/read"
-
-# 4. Verificar nuevo conteo
-curl "localhost:8080/api/notifications/user1/unread/count"  # Respuesta: 1
-
-# 5. Ver solo no leídas
-curl "localhost:8080/api/notifications/user1/unread"      # Solo mensaje 2
-
-# 6. Ver todas (incluye leídas)
-curl "localhost:8080/api/notifications/user1"             # Ambos mensajes
-
-# 7. Marcar todas como leídas
-curl -X POST "localhost:8080/api/notifications/user1/mark-all-read"
-
-# 8. Verificar resultado
-curl "localhost:8080/api/notifications/user1/unread/count"  # Respuesta: 0
-```
-
-## 📋 Requisitos
-
-### Opción 1: Desarrollo rápido (H2 + Redis embebido)
-- Java 17+
-- Redis Server (opcional - ver instalación abajo)
-
-### Opción 2: Producción (MySQL + Redis)
-- Java 17+
-- MySQL Server
-- Redis Server
-
-## 🛠️ Instalación de Redis
-
-### Windows
-```bash
-# Descargar Redis desde: https://github.com/microsoftarchive/redis/releases
-# O usar Docker:
-docker run -d -p 6379:6379 redis:latest
-```
-
-### Linux/Mac
-```bash
-# Ubuntu/Debian
-sudo apt install redis-server
-sudo systemctl start redis-server
-
-# Mac con Homebrew
-brew install redis
-brew services start redis
-```
-
-## 🏃‍♂️ Ejecución
-
-### Desarrollo rápido con H2
-```bash
-# Inicia Redis primero (si no tienes Docker)
-redis-server
-
-# Ejecuta la aplicación
-./mvnw spring-boot:run -Dspring-boot.run.profiles=h2
-```
-
-### Producción con MySQL
-```bash
-# Asegúrate de tener MySQL y Redis ejecutándose
-./mvnw spring-boot:run
-```
-
-## 🔗 Accesos
-
-Una vez iniciada la aplicación:
-
-- **Swagger UI**: http://localhost:8080/swagger-ui.html
-- **Cliente WebSocket Demo**: http://localhost:8080/websocket-client.html
-- **H2 Console**: http://localhost:8080/h2-console (perfil h2)
-- **API REST**: http://localhost:8080/api/
-
-## 👥 Usuarios de Prueba
-
-| Username | Password | Rol   |
-|----------|----------|-------|
-| admin    | password | ADMIN |
-| user1    | password | USER  |
-| user2    | password | USER  |
-
-## 📚 Tecnologías
-
-- **Spring Boot 3.5.4**
-- **Spring WebSocket + STOMP**
-- **Spring Data JPA**
-- **Spring Data Redis**
-- **MySQL + H2**
-- **Swagger/OpenAPI**
-- **Lombok**
-
-## 👨‍💻 Autor
-
-Alejandro - [GitHub](https://github.com/Biershoot)
+## 📚 Documentación API
+
+La documentación de la API está disponible a través de Swagger UI:
+
+- Entorno local: http://localhost:8080/swagger-ui.html
+- Documentación completa en la [wiki del proyecto](https://github.com/Biershoot/API_Notificaciones_Tiempo_Real/wiki)
+
+## 📈 Monitoreo y Observabilidad
+
+### Dashboards Grafana
+- Sistema completo: http://localhost:3000/d/notifications-dashboard
+- Rendimiento API: http://localhost:3000/d/api-performance
+- Métricas de Notificaciones: http://localhost:3000/d/notifications-metrics
+
+### Endpoints de Salud y Métricas
+- Estado del sistema: http://localhost:8080/actuator/health
+- Métricas Prometheus: http://localhost:8080/actuator/prometheus
+
+## 🔄 Roadmap
+
+### v2.5.0 - Próximas mejoras
+- ➕ Notificaciones push móviles (FCM/APNS)
+- ➕ Integración con sistemas de mensajería
+- ➕ Generación de reportes avanzados
+
+### v2.0.0 - Funcionalidades actuales
+- ✅ API REST avanzada con filtros y búsqueda
+- ✅ WebSockets para tiempo real
+- ✅ Persistencia con MySQL/PostgreSQL
+- ✅ Redis Pub/Sub para arquitectura distribuida
+- ✅ Monitoring con Prometheus y Grafana
+- ✅ Logs de auditoría completos
+- ✅ Pipeline CI/CD con GitHub Actions
+- ✅ Análisis de seguridad automatizado
+
+## 🤝 Contribución
+
+1. Fork el proyecto
+2. Crear feature branch (`git checkout -b feature/nueva-caracteristica`)
+3. Commit cambios (`git commit -am 'Agregar nueva característica'`)
+4. Push al branch (`git push origin feature/nueva-caracteristica`)
+5. Crear Pull Request
+
+## 📄 Licencia
+
+Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para más detalles.
+
+---
+
+**Alejandro** - Desarrollador Full Stack
+- GitHub: [@Biershoot](https://github.com/Biershoot)
+- LinkedIn: [Alejandro](https://linkedin.com/in/tu-perfil)
+- Email: alejandro@empresa.com
+
+⭐ **¿Te gustó este proyecto?** ¡Dale una estrella en GitHub!
+
+🐛 **¿Encontraste un bug?** Crea un [issue](https://github.com/Biershoot/API_Notificaciones_Tiempo_Real/issues)
+
+💡 **¿Tienes una idea?** ¡Las contribuciones son bienvenidas!

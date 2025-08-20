@@ -3,13 +3,21 @@ package com.alejandro.microservices.notifications.metrics;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Timer;
-import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.DistributionSummary;
+import io.micrometer.core.instrument.Tag;
 import org.springframework.stereotype.Component;
+
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
 
+/**
+ * Componente para la gestión de métricas de la aplicación de notificaciones.
+ * Proporciona contadores, temporizadores y resúmenes para monitorear y analizar
+ * el comportamiento de la aplicación en producción.
+ */
 @Component
 public class NotificationMetrics {
 
@@ -23,6 +31,9 @@ public class NotificationMetrics {
     private final Counter failedNotifications;
     private final Counter websocketConnections;
     private final Counter redisPublishEvents;
+    private final Counter cleanupCounter;
+    private final Counter queryCounter;
+    private final Counter bulkReadCounter;
 
     // Timers para medir latencia
     private final Timer notificationSendTime;
@@ -42,6 +53,11 @@ public class NotificationMetrics {
     // Map para tracking por usuario
     private final Map<String, AtomicLong> notificationsByUser = new ConcurrentHashMap<>();
 
+    /**
+     * Constructor que inicializa todas las métricas y las registra en el MeterRegistry.
+     *
+     * @param meterRegistry El registro de métricas de Spring
+     */
     public NotificationMetrics(MeterRegistry meterRegistry) {
         this.meterRegistry = meterRegistry;
 
@@ -81,6 +97,21 @@ public class NotificationMetrics {
                 .tag("service", "notification-api")
                 .register(meterRegistry);
 
+        this.cleanupCounter = Counter.builder("notifications_cleanup_total")
+                .description("Total notifications cleaned up")
+                .tag("service", "notification-api")
+                .register(meterRegistry);
+
+        this.queryCounter = Counter.builder("notifications_query_total")
+                .description("Total notification queries executed")
+                .tag("service", "notification-api")
+                .register(meterRegistry);
+
+        this.bulkReadCounter = Counter.builder("notifications_bulk_read_total")
+                .description("Total notifications marked as read in bulk operations")
+                .tag("service", "notification-api")
+                .register(meterRegistry);
+
         // Timers para latencia
         this.notificationSendTime = Timer.builder("notification_send_duration_seconds")
                 .description("Time taken to send notifications")
@@ -102,141 +133,178 @@ public class NotificationMetrics {
                 .tag("service", "notification-api")
                 .register(meterRegistry);
 
-        // Distribution Summary para tamaños
+        // Distribution summary para tamaños de mensaje
         this.notificationMessageSize = DistributionSummary.builder("notification_message_size_bytes")
-                .description("Size of notification messages in bytes")
+                .description("Size distribution of notification messages")
                 .tag("service", "notification-api")
+                .baseUnit("bytes")
                 .register(meterRegistry);
 
-        // Gauges para estado en tiempo real
-        Gauge.builder("notifications_active_total")
-                .description("Current number of active notifications")
-                .tag("service", "notification-api")
-                .register(meterRegistry, this, metrics -> metrics.totalActiveNotifications.get());
-
-        Gauge.builder("notifications_unread_current")
-                .description("Current number of unread notifications")
-                .tag("service", "notification-api")
-                .register(meterRegistry, this, metrics -> metrics.totalUnreadNotifications.get());
-
-        Gauge.builder("websocket_connections_active")
-                .description("Current number of active WebSocket connections")
-                .tag("service", "notification-api")
-                .register(meterRegistry, this, metrics -> metrics.activeWebsocketConnections.get());
-
-        Gauge.builder("users_total")
-                .description("Total number of users in system")
-                .tag("service", "notification-api")
-                .register(meterRegistry, this, metrics -> metrics.totalUsers.get());
+        // Registrar gauges
+        meterRegistry.gauge("notifications_active_total", List.of(Tag.of("service", "notification-api")), totalActiveNotifications);
+        meterRegistry.gauge("notifications_unread_total", List.of(Tag.of("service", "notification-api")), totalUnreadNotifications);
+        meterRegistry.gauge("websocket_connections_active", List.of(Tag.of("service", "notification-api")), activeWebsocketConnections);
+        meterRegistry.gauge("users_total", List.of(Tag.of("service", "notification-api")), totalUsers);
     }
 
-    // Métodos para incrementar contadores
-    public void incrementNotificationsSent() {
+    // ===== MÉTODOS PARA INCREMENTAR CONTADORES =====
+
+    /**
+     * Incrementa el contador de notificaciones enviadas, segmentado por tipo y prioridad.
+     */
+    public void incrementSentCounter(String type, String priority) {
         sentNotifications.increment();
-        totalActiveNotifications.incrementAndGet();
+
+        // Contadores específicos por tipo y prioridad
+        meterRegistry.counter("notifications_sent_by_type", "type", type).increment();
+        meterRegistry.counter("notifications_sent_by_priority", "priority", priority).increment();
     }
 
+    /**
+     * Incrementa el contador de notificaciones enviadas para un usuario específico.
+     */
     public void incrementNotificationsSent(String username) {
-        incrementNotificationsSent();
-        notificationsByUser.computeIfAbsent(username, k ->
-            meterRegistry.gauge("notifications_by_user", "username", username, new AtomicLong(0))
-        ).incrementAndGet();
+        notificationsByUser.computeIfAbsent(username, k -> new AtomicLong(0)).incrementAndGet();
     }
 
-    public void incrementNotificationsRead() {
+    /**
+     * Incrementa el contador de notificaciones leídas, segmentado por tipo.
+     */
+    public void incrementReadCounter(String type) {
         readNotifications.increment();
-        totalUnreadNotifications.decrementAndGet();
+        meterRegistry.counter("notifications_read_by_type", "type", type).increment();
     }
 
+    /**
+     * Incrementa el contador de notificaciones no leídas.
+     */
     public void incrementUnreadNotifications() {
         unreadNotifications.increment();
         totalUnreadNotifications.incrementAndGet();
     }
 
-    public void incrementMarkAllReadOperations() {
-        markAllReadOperations.increment();
-    }
-
+    /**
+     * Incrementa el contador de notificaciones fallidas.
+     */
     public void incrementFailedNotifications() {
         failedNotifications.increment();
     }
 
-    public void incrementWebsocketConnections() {
+    /**
+     * Incrementa el contador de conexiones WebSocket.
+     */
+    public void incrementWebSocketConnections() {
         websocketConnections.increment();
         activeWebsocketConnections.incrementAndGet();
     }
 
-    public void decrementWebsocketConnections() {
+    /**
+     * Decrementa el contador de conexiones WebSocket activas.
+     */
+    public void decrementActiveWebSocketConnections() {
         activeWebsocketConnections.decrementAndGet();
     }
 
-    public void incrementRedisPublishEvents() {
-        redisPublishEvents.increment();
+    /**
+     * Incrementa el contador de notificaciones eliminadas.
+     */
+    public void incrementCleanupCounter(int count) {
+        cleanupCounter.increment(count);
+        totalActiveNotifications.addAndGet(-count);
     }
 
-    // Métodos para timers
+    /**
+     * Incrementa el contador de consultas de notificaciones.
+     */
+    public void incrementQueryCounter() {
+        queryCounter.increment();
+    }
+
+    /**
+     * Incrementa el contador de notificaciones marcadas como leídas en masa.
+     */
+    public void incrementBulkReadCounter(int count) {
+        bulkReadCounter.increment(count);
+        totalUnreadNotifications.addAndGet(-count);
+    }
+
+    // ===== MÉTODOS PARA MEDIR TIEMPOS =====
+
+    /**
+     * Inicia un temporizador para medir el tiempo de envío de notificaciones.
+     * @return Un objeto Sample que debe detenerse al finalizar la operación
+     */
     public Timer.Sample startNotificationSendTimer() {
         return Timer.start(meterRegistry);
     }
 
+    /**
+     * Registra el tiempo transcurrido para el envío de una notificación.
+     */
     public void recordNotificationSendTime(Timer.Sample sample) {
         sample.stop(notificationSendTime);
     }
 
+    /**
+     * Inicia un temporizador para medir el tiempo de consultas a la base de datos.
+     */
     public Timer.Sample startDatabaseQueryTimer() {
         return Timer.start(meterRegistry);
     }
 
+    /**
+     * Registra el tiempo transcurrido para una consulta a la base de datos.
+     */
     public void recordDatabaseQueryTime(Timer.Sample sample) {
         sample.stop(databaseQueryTime);
     }
 
-    public Timer.Sample startRedisOperationTimer() {
-        return Timer.start(meterRegistry);
+    /**
+     * Registra el tamaño de un mensaje de notificación.
+     */
+    public void recordNotificationMessageSize(long bytes) {
+        notificationMessageSize.record(bytes);
     }
 
-    public void recordRedisOperationTime(Timer.Sample sample) {
-        sample.stop(redisOperationTime);
-    }
+    // ===== MÉTODOS PARA ESTADÍSTICAS =====
 
-    public Timer.Sample startWebsocketBroadcastTimer() {
-        return Timer.start(meterRegistry);
-    }
-
-    public void recordWebsocketBroadcastTime(Timer.Sample sample) {
-        sample.stop(websocketBroadcastTime);
-    }
-
-    // Métodos para distribution summary
-    public void recordNotificationMessageSize(int sizeInBytes) {
-        notificationMessageSize.record(sizeInBytes);
-    }
-
-    // Métodos para actualizar gauges
-    public void setTotalActiveNotifications(long count) {
-        totalActiveNotifications.set(count);
-    }
-
-    public void setTotalUnreadNotifications(long count) {
-        totalUnreadNotifications.set(count);
-    }
-
+    /**
+     * Actualiza el número total de usuarios.
+     */
     public void setTotalUsers(long count) {
         totalUsers.set(count);
     }
 
-    public void markAllAsRead(String username, int count) {
-        incrementMarkAllReadOperations();
-        totalUnreadNotifications.addAndGet(-count);
+    /**
+     * Obtiene estadísticas de notificaciones por usuario.
+     */
+    public Map<String, Long> getNotificationsByUser() {
+        Map<String, Long> result = new ConcurrentHashMap<>();
+        notificationsByUser.forEach((user, count) -> result.put(user, count.get()));
+        return result;
     }
 
-    // Método para obtener estadísticas actuales
+    /**
+     * Obtiene estadísticas actuales del sistema.
+     */
     public Map<String, Object> getCurrentStats() {
-        return Map.of(
-            "totalActiveNotifications", totalActiveNotifications.get(),
-            "totalUnreadNotifications", totalUnreadNotifications.get(),
-            "activeWebsocketConnections", activeWebsocketConnections.get(),
-            "totalUsers", totalUsers.get()
-        );
+        Map<String, Object> stats = new ConcurrentHashMap<>();
+        
+        stats.put("totalUsers", totalUsers.get());
+        stats.put("totalActiveNotifications", totalActiveNotifications.get());
+        stats.put("totalUnreadNotifications", totalUnreadNotifications.get());
+        stats.put("activeWebsocketConnections", activeWebsocketConnections.get());
+        
+        stats.put("sentNotifications", sentNotifications.count());
+        stats.put("readNotifications", readNotifications.count());
+        stats.put("unreadNotifications", unreadNotifications.count());
+        stats.put("failedNotifications", failedNotifications.count());
+        stats.put("websocketConnections", websocketConnections.count());
+        stats.put("redisPublishEvents", redisPublishEvents.count());
+        stats.put("cleanupCounter", cleanupCounter.count());
+        stats.put("queryCounter", queryCounter.count());
+        stats.put("bulkReadCounter", bulkReadCounter.count());
+        
+        return stats;
     }
 }
