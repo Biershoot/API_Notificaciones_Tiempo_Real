@@ -50,6 +50,17 @@ public class ExternalNotificationController {
             log.info("Recibida solicitud de notificación externa para usuario: {} por canal: {}", 
                     request.getUsername(), request.getChannel());
 
+            // Validar que los campos requeridos estén presentes según el canal
+            if (!request.isValidForChannel()) {
+                String errorMessage = request.getValidationErrorMessage();
+                log.error("Validación fallida: {}", errorMessage);
+                return ResponseEntity.badRequest()
+                        .body(Map.of(
+                                "success", false,
+                                "error", errorMessage
+                        ));
+            }
+
             // Crear la notificación
             Notification notification = Notification.builder()
                     .username(request.getUsername())
@@ -74,11 +85,21 @@ public class ExternalNotificationController {
 
             if (request.getChannels() != null && !request.getChannels().isEmpty()) {
                 // Enviar a múltiples canales
-                results = notificationDispatcher.dispatchToChannels(savedNotification, request.getChannels());
+                results = notificationDispatcher.dispatchToChannels(
+                        savedNotification, 
+                        request.getChannels(), 
+                        request.getEmail(), 
+                        request.getPhone()
+                );
                 sent = results.values().stream().anyMatch(Boolean::booleanValue);
             } else {
                 // Enviar a un solo canal
-                sent = notificationDispatcher.dispatchNotification(savedNotification, request.getChannel());
+                sent = notificationDispatcher.dispatchNotification(
+                        savedNotification, 
+                        request.getChannel(), 
+                        request.getEmail(), 
+                        request.getPhone()
+                );
             }
 
             Map<String, Object> response = Map.of(
@@ -128,6 +149,14 @@ public class ExternalNotificationController {
 
             for (ExternalNotificationRequestDto request : requests) {
                 try {
+                    // Validar que los campos requeridos estén presentes según el canal
+                    if (!request.isValidForChannel()) {
+                        String errorMessage = request.getValidationErrorMessage();
+                        log.error("Validación fallida para usuario {}: {}", request.getUsername(), errorMessage);
+                        failureCount++;
+                        continue;
+                    }
+
                     Notification notification = Notification.builder()
                             .username(request.getUsername())
                             .message(request.getMessage())
@@ -143,7 +172,13 @@ public class ExternalNotificationController {
                             notification.getType(),
                             notification.getPriority()
                     );
-                    boolean sent = notificationDispatcher.dispatchNotification(savedNotification, request.getChannel());
+                    
+                    boolean sent = notificationDispatcher.dispatchNotification(
+                            savedNotification, 
+                            request.getChannel(), 
+                            request.getEmail(), 
+                            request.getPhone()
+                    );
 
                     if (sent) {
                         successCount++;
@@ -206,7 +241,9 @@ public class ExternalNotificationController {
                             .type("INFO")
                             .priority("NORMAL")
                             .build(),
-                    "SMS"
+                    "SMS",
+                    null, // email no requerido para SMS
+                    phoneNumber
             );
 
             return ResponseEntity.ok(Map.of(
@@ -245,7 +282,9 @@ public class ExternalNotificationController {
                             .type("INFO")
                             .priority("NORMAL")
                             .build(),
-                    "EMAIL"
+                    "EMAIL",
+                    email,
+                    null // phone no requerido para email
             );
 
             return ResponseEntity.ok(Map.of(

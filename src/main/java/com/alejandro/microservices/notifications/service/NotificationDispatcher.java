@@ -27,9 +27,11 @@ public class NotificationDispatcher {
      *
      * @param notification Notificación a enviar
      * @param channel      Canal de envío (APP, EMAIL, SMS, ALL)
+     * @param email        Email del destinatario (opcional, requerido para canal EMAIL)
+     * @param phone        Teléfono del destinatario (opcional, requerido para canal SMS)
      * @return true si se envió correctamente
      */
-    public boolean dispatchNotification(Notification notification, String channel) {
+    public boolean dispatchNotification(Notification notification, String channel, String email, String phone) {
         try {
             log.info("Despachando notificación ID: {} por canal: {}", notification.getId(), channel);
 
@@ -41,28 +43,40 @@ public class NotificationDispatcher {
                     return true;
                 }
                 case "EMAIL" -> {
+                    // Validar que el email esté presente
+                    if (email == null || email.trim().isEmpty()) {
+                        log.error("Email requerido para canal EMAIL");
+                        return false;
+                    }
+                    
                     // Enviar por email
                     boolean emailSent = emailService.sendNotificationEmail(
-                            notification.getUsername() + "@example.com", // Email del usuario
+                            email,
                             notification.getTitle() != null ? notification.getTitle() : "Notificación",
                             notification.getMessage()
                     );
-                    log.info("Notificación enviada por EMAIL: {}", emailSent);
+                    log.info("Notificación enviada por EMAIL a {}: {}", email, emailSent);
                     return emailSent;
                 }
                 case "SMS" -> {
+                    // Validar que el teléfono esté presente
+                    if (phone == null || phone.trim().isEmpty()) {
+                        log.error("Teléfono requerido para canal SMS");
+                        return false;
+                    }
+                    
                     // Enviar por SMS
                     boolean smsSent = smsService.sendNotificationSms(
-                            "+1234567890", // Teléfono del usuario (debería venir del modelo)
+                            phone,
                             notification.getTitle() != null ? notification.getTitle() : "Notificación",
                             notification.getMessage()
                     );
-                    log.info("Notificación enviada por SMS: {}", smsSent);
+                    log.info("Notificación enviada por SMS a {}: {}", phone, smsSent);
                     return smsSent;
                 }
                 case "ALL" -> {
                     // Enviar por todos los canales
-                    return dispatchToAllChannels(notification);
+                    return dispatchToAllChannels(notification, email, phone);
                 }
                 default -> {
                     log.error("Canal no soportado: {}", channel);
@@ -76,12 +90,28 @@ public class NotificationDispatcher {
     }
 
     /**
+     * Despacha una notificación a través del canal especificado (método legacy).
+     *
+     * @param notification Notificación a enviar
+     * @param channel      Canal de envío (APP, EMAIL, SMS, ALL)
+     * @return true si se envió correctamente
+     */
+    public boolean dispatchNotification(Notification notification, String channel) {
+        // Usar valores por defecto para compatibilidad
+        String defaultEmail = notification.getUsername() + "@example.com";
+        String defaultPhone = "+1234567890";
+        return dispatchNotification(notification, channel, defaultEmail, defaultPhone);
+    }
+
+    /**
      * Despacha una notificación a todos los canales disponibles.
      *
      * @param notification Notificación a enviar
+     * @param email        Email del destinatario
+     * @param phone        Teléfono del destinatario
      * @return true si se envió por al menos un canal
      */
-    public boolean dispatchToAllChannels(Notification notification) {
+    public boolean dispatchToAllChannels(Notification notification, String email, String phone) {
         log.info("Despachando notificación ID: {} a todos los canales", notification.getId());
 
         // Enviar de forma asíncrona a todos los canales
@@ -97,8 +127,12 @@ public class NotificationDispatcher {
 
         CompletableFuture<Boolean> emailFuture = CompletableFuture.supplyAsync((Supplier<Boolean>) () -> {
             try {
+                if (email == null || email.trim().isEmpty()) {
+                    log.warn("Email no proporcionado, saltando envío por EMAIL");
+                    return false;
+                }
                 return emailService.sendNotificationEmail(
-                        notification.getUsername() + "@example.com",
+                        email,
                         notification.getTitle() != null ? notification.getTitle() : "Notificación",
                         notification.getMessage()
                 );
@@ -110,8 +144,12 @@ public class NotificationDispatcher {
 
         CompletableFuture<Boolean> smsFuture = CompletableFuture.supplyAsync((Supplier<Boolean>) () -> {
             try {
+                if (phone == null || phone.trim().isEmpty()) {
+                    log.warn("Teléfono no proporcionado, saltando envío por SMS");
+                    return false;
+                }
                 return smsService.sendNotificationSms(
-                        "+1234567890",
+                        phone,
                         notification.getTitle() != null ? notification.getTitle() : "Notificación",
                         notification.getMessage()
                 );
@@ -135,20 +173,47 @@ public class NotificationDispatcher {
     }
 
     /**
+     * Despacha una notificación a todos los canales disponibles (método legacy).
+     *
+     * @param notification Notificación a enviar
+     * @return true si se envió por al menos un canal
+     */
+    public boolean dispatchToAllChannels(Notification notification) {
+        String defaultEmail = notification.getUsername() + "@example.com";
+        String defaultPhone = "+1234567890";
+        return dispatchToAllChannels(notification, defaultEmail, defaultPhone);
+    }
+
+    /**
      * Despacha una notificación a múltiples canales específicos.
+     *
+     * @param notification Notificación a enviar
+     * @param channels     Lista de canales a usar
+     * @param email        Email del destinatario
+     * @param phone        Teléfono del destinatario
+     * @return Mapa con el resultado de cada canal
+     */
+    public Map<String, Boolean> dispatchToChannels(Notification notification, List<String> channels, String email, String phone) {
+        log.info("Despachando notificación ID: {} a canales: {}", notification.getId(), channels);
+
+        return channels.stream()
+                .collect(java.util.stream.Collectors.toMap(
+                        channel -> channel,
+                        channel -> dispatchNotification(notification, channel, email, phone)
+                ));
+    }
+
+    /**
+     * Despacha una notificación a múltiples canales específicos (método legacy).
      *
      * @param notification Notificación a enviar
      * @param channels     Lista de canales a usar
      * @return Mapa con el resultado de cada canal
      */
     public Map<String, Boolean> dispatchToChannels(Notification notification, List<String> channels) {
-        log.info("Despachando notificación ID: {} a canales: {}", notification.getId(), channels);
-
-        return channels.stream()
-                .collect(java.util.stream.Collectors.toMap(
-                        channel -> channel,
-                        channel -> dispatchNotification(notification, channel)
-                ));
+        String defaultEmail = notification.getUsername() + "@example.com";
+        String defaultPhone = "+1234567890";
+        return dispatchToChannels(notification, channels, defaultEmail, defaultPhone);
     }
 
     /**

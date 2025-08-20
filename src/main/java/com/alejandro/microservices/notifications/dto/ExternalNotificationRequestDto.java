@@ -32,11 +32,9 @@ public class ExternalNotificationRequestDto {
     private String username;
 
     @Schema(description = "Dirección de email del destinatario", example = "user1@example.com")
-    @Pattern(regexp = "^[A-Za-z0-9+_.-]+@(.+)$", message = "Formato de email inválido")
     private String email;
 
     @Schema(description = "Número de teléfono del destinatario", example = "+1234567890")
-    @Pattern(regexp = "^\\+[1-9]\\d{1,14}$", message = "Formato de teléfono inválido (debe incluir código de país)")
     private String phone;
 
     @Schema(description = "Canal de envío", example = "EMAIL", allowableValues = {"APP", "EMAIL", "SMS", "ALL"})
@@ -59,4 +57,71 @@ public class ExternalNotificationRequestDto {
 
     @Schema(description = "Metadatos adicionales en formato JSON", example = "{\"orderId\": \"123\", \"amount\": 99.99}")
     private String metadata;
+
+    /**
+     * Valida que los campos requeridos estén presentes según el canal.
+     */
+    public boolean isValidForChannel() {
+        if (channels != null && !channels.isEmpty()) {
+            // Validación para múltiples canales
+            return channels.stream().allMatch(this::isValidForSingleChannel);
+        } else {
+            return isValidForSingleChannel(channel);
+        }
+    }
+
+    private boolean isValidForSingleChannel(String channel) {
+        return switch (channel.toUpperCase()) {
+            case "EMAIL" -> email != null && !email.trim().isEmpty() && isValidEmail(email);
+            case "SMS" -> phone != null && !phone.trim().isEmpty() && isValidPhone(phone);
+            case "APP", "ALL" -> true; // No requiere campos adicionales
+            default -> false;
+        };
+    }
+
+    private boolean isValidEmail(String email) {
+        return email.matches("^[A-Za-z0-9+_.-]+@(.+)$");
+    }
+
+    private boolean isValidPhone(String phone) {
+        return phone.matches("^\\+[1-9]\\d{1,14}$");
+    }
+
+    /**
+     * Obtiene el mensaje de error de validación para el canal.
+     */
+    public String getValidationErrorMessage() {
+        if (channels != null && !channels.isEmpty()) {
+            for (String ch : channels) {
+                if (!isValidForSingleChannel(ch)) {
+                    return getChannelValidationMessage(ch);
+                }
+            }
+        } else {
+            if (!isValidForSingleChannel(channel)) {
+                return getChannelValidationMessage(channel);
+            }
+        }
+        return null;
+    }
+
+    private String getChannelValidationMessage(String channel) {
+        return switch (channel.toUpperCase()) {
+            case "EMAIL" -> {
+                if (email == null || email.trim().isEmpty()) {
+                    yield "El campo 'email' es requerido para el canal EMAIL";
+                } else {
+                    yield "El formato del email no es válido. Debe ser: usuario@dominio.com";
+                }
+            }
+            case "SMS" -> {
+                if (phone == null || phone.trim().isEmpty()) {
+                    yield "El campo 'phone' es requerido para el canal SMS";
+                } else {
+                    yield "El formato del teléfono no es válido. Debe incluir código de país: +1234567890";
+                }
+            }
+            default -> "Canal no soportado: " + channel;
+        };
+    }
 }
